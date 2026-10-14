@@ -379,6 +379,34 @@ void main() {
     expect(fake.calls.where((c) => c.contains('/checkout')), isEmpty);
   });
 
+  testWidgets('expired approval_pending URL is not reused; fresh checkout starts',
+      (tester) async {
+    final fake = await _pump(
+      tester,
+      () => {
+        'subscription': null,
+        'plans': _plans,
+        'checkout': {
+          'plan_code': 'launch',
+          'status': 'approval_pending',
+          'approval_url': 'https://www.paypal.com/approve?ba_token=STALE',
+          'expires_at': DateTime.now()
+              .subtract(const Duration(days: 1))
+              .toUtc()
+              .toIso8601String(),
+        },
+      },
+    );
+
+    expect(find.text('Finish in PayPal · not active yet'), findsNothing);
+    await _tap(tester, 'launch');
+    await _tap(tester, 'pay-with-paypal');
+
+    expect(fake.calls, contains('POST /billing/paypal/checkout launch'));
+    expect(fake.opened, hasLength(1));
+    expect(fake.opened.single.queryParameters['ba_token'], isNull);
+  });
+
   testWidgets('expired checkout returns to plans with its plan selected',
       (tester) async {
     await _pump(
