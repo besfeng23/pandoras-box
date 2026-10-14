@@ -27,18 +27,40 @@ class PlpChatFallback {
     final tasks = _integer(today['open_staff_tasks']);
     final conflicts = _integer(today['open_ota_conflicts']);
 
+    final state = _text(source['state'], fallback: 'unknown');
+    final detail = _text(source['message'], fallback: 'No current provider status message is recorded.');
+    final isStaleLike = state == 'stale' || state == 'unknown' || state == 'unavailable' || state == 'not_connected';
+
     if (const {
       'how are things', 'how are things?', 'how is everything', 'how is everything?',
       'how is the resort', 'how is the resort?', 'how are things at plp', 'how are things at plp?',
       'what is happening', 'what is happening?', 'whats happening', 'whats happening?',
       'how is plp', 'how is plp?', 'resort status', 'status',
     }.contains(normalized)) {
-      final state = _text(source['state'], fallback: 'unknown');
-      final detail = _text(source['message'], fallback: 'No current provider status message is recorded.');
-      if (state == 'stale' || state == 'unknown' || state == 'unavailable') {
-        return 'PLP status: source state is $state. $detail The figures available here are from the last synchronized snapshot, not a live provider refresh.';
+      if (isStaleLike) {
+        return 'PLP status: source state is $state. $detail The figures available here are from the last synchronized snapshot, not a live provider refresh.\n\nTo make this live: connect a verified PMS/OTA source, refresh the observation (source_observed_at), and ensure no QA/mock records remain in the customer tenant. Once source state is healthy/current/live/ready, live figures will appear.';
       }
       return 'PLP status: source state is $state. $detail';
+    }
+
+    if (normalized.contains('what do we need to do') ||
+        normalized.contains('what do we need') ||
+        normalized.contains('how do we fix') ||
+        normalized.contains('how to fix') ||
+        normalized.contains('make it live') ||
+        normalized.contains('make live') ||
+        normalized.contains('refresh source') ||
+        normalized.contains('update source')) {
+      if (isStaleLike) {
+        return 'To move PLP from $state to live:\n'
+            '1. Confirm this is the customer tenant (not the demo/staging org).\n'
+            '2. Remove or quarantine any QA/mock hospitality records so has_mock is false.\n'
+            '3. Connect a verified business source (PMS or OTA) and update enterprise_properties.source_status to healthy/current/live/ready.\n'
+            '4. Set source_observed_at to now() (or within the last 6 hours).\n'
+            '5. Refresh the workspace. Live operational data will then be available and the snapshot note will disappear.\n\n'
+            'No automatic provider refresh is available in this workspace until those conditions are met. The current figures stay from the last snapshot.';
+      }
+      return 'Source state is already $state. $detail No further action is required for live status.';
     }
 
     final suffix =
@@ -102,8 +124,6 @@ class PlpChatFallback {
         normalized.contains('provider status') ||
         normalized.contains('data live') ||
         normalized.contains('data current')) {
-      final state = _text(source['state'], fallback: 'unknown');
-      final detail = _text(source['message'], fallback: 'No provider status message');
       return 'PLP source state is $state. $detail.$suffix';
     }
     if (normalized == 'today' ||
