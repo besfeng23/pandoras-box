@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pandora_mobile/app/pandora_dependencies.dart';
 import 'package:pandora_mobile/app/plp_enterprise_shell.dart';
-import 'package:pandora_mobile/core/data/plp_paypal_billing_api.dart';
+import 'package:pandora_mobile/features/enterprise/plp/data/plp_paypal_billing_api.dart';
 import 'package:pandora_mobile/core/diagnostics/diagnostics_store.dart';
 
 import '../helpers/fake_owner_api.dart';
