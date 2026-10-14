@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../core/data/plp_paypal_billing_api.dart';
+import 'plp/data/plp_paypal_billing_api.dart';
 import 'plp_resort_workspace.dart';
 
 /// Billing renders through the same resort page frame, title, notice and

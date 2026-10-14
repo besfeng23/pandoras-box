@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../core/data/eurofish_workspace_api.dart';
+import '../features/enterprise/eurofish/data/eurofish_workspace_api.dart';
 import '../core/data/pandora_intelligence_api.dart';
 import '../core/widgets/pandora_navigation.dart';
 import '../features/enterprise/enterprise_workspace_home.dart';
