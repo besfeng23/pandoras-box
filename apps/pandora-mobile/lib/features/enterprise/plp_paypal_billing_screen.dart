@@ -220,6 +220,15 @@ class _PlpPaypalBillingScreenState extends State<PlpPaypalBillingScreen> {
         () => '$prefix-${DateTime.now().microsecondsSinceEpoch}',
       );
 
+  /// Expiry is part of the approval contract. Never send the owner back to a
+  /// provider link the backend already considers stale.
+  bool _approvalExpired(Map<String, dynamic> approval) {
+    final raw = approval['expires_at'];
+    if (raw == null || raw.toString().trim().isEmpty) return false;
+    final expiresAt = DateTime.tryParse(raw.toString());
+    return expiresAt == null || !expiresAt.isAfter(DateTime.now());
+  }
+
   /// An unfinished PayPal approval (checkout or plan change) that can still
   /// be completed; '' when none.
   String _existingApprovalUrl() {
@@ -227,10 +236,12 @@ class _PlpPaypalBillingScreenState extends State<PlpPaypalBillingScreen> {
     final pending = _map(_status['pendingPlanChange']);
     final pendingStatus = (pending['status'] ?? '').toString().toLowerCase();
     final checkoutStatus = (checkout['status'] ?? '').toString().toLowerCase();
-    final pendingUrl = _terminalApprovalStates.contains(pendingStatus)
+    final pendingUrl = _terminalApprovalStates.contains(pendingStatus) ||
+            _approvalExpired(pending)
         ? ''
         : (pending['approval_url'] ?? '').toString().trim();
-    final checkoutUrl = _terminalApprovalStates.contains(checkoutStatus)
+    final checkoutUrl = _terminalApprovalStates.contains(checkoutStatus) ||
+            _approvalExpired(checkout)
         ? ''
         : (checkout['approval_url'] ?? '').toString().trim();
     return pendingUrl.isNotEmpty ? pendingUrl : checkoutUrl;
@@ -357,14 +368,17 @@ class _PlpPaypalBillingScreenState extends State<PlpPaypalBillingScreen> {
     final currentCode =
         (subscription['plan_code'] ?? checkout['plan_code'] ?? '').toString();
     final pendingStatus = (pending['status'] ?? '').toString().toLowerCase();
-    final pendingChange =
-        pending.isNotEmpty && !_terminalApprovalStates.contains(pendingStatus);
+    final pendingChange = pending.isNotEmpty &&
+        !_terminalApprovalStates.contains(pendingStatus) &&
+        !_approvalExpired(pending);
     final pendingApproval =
         pendingChange ? (pending['approval_url'] ?? '').toString().trim() : '';
     final checkoutStatus = (checkout['status'] ?? '').toString().toLowerCase();
-    final checkoutApproval = _terminalApprovalStates.contains(checkoutStatus)
-        ? ''
-        : (checkout['approval_url'] ?? '').toString().trim();
+    final checkoutApproval =
+        _terminalApprovalStates.contains(checkoutStatus) ||
+                _approvalExpired(checkout)
+            ? ''
+            : (checkout['approval_url'] ?? '').toString().trim();
     // Verified only with provider evidence; a failed refresh keeps the last
     // confirmed data on screen but no longer calls it verified.
     final verified = !_unresolved &&
