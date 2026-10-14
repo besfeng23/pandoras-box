@@ -81,4 +81,42 @@ void main() {
     expect(reply, contains('Reservations and payments are available.'));
   });
 
+  test('gives safe concrete steps for a stale-source follow-up', () {
+    final staleContext = <String, Object?>{
+      ...context,
+      'sourceHealth': <String, Object?>{
+        'state': 'stale',
+        'message': 'The last provider observation is old.',
+      },
+    };
+    final reply = PlpChatFallback.deterministicReply(
+      message: 'What do we need to do then?',
+      enterpriseContext: staleContext,
+    );
+    expect(reply, contains('approved PMS/OTA integration'));
+    expect(reply, contains('Do not manually mark source_status healthy'));
+    expect(reply, contains('snapshot data'));
+  });
+
+  test('mock records prevent healthy source from being presented as live', () {
+    final mockContext = <String, Object?>{
+      ...context,
+      'has_mock': true,
+    };
+    final reply = PlpChatFallback.deterministicReply(
+      message: 'How are things at PLP?',
+      enterpriseContext: mockContext,
+    );
+    expect(reply, contains('Mock/QA records'));
+    expect(reply, contains('not a live provider refresh'));
+  });
+
+  test('healthy status does not imply independently verified freshness', () {
+    final reply = PlpChatFallback.deterministicReply(
+      message: 'What do we need to do then?',
+      enterpriseContext: context,
+    );
+    expect(reply, contains('cannot independently verify provider freshness'));
+  });
+
 }
