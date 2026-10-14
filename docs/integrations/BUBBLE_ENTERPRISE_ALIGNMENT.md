@@ -1,7 +1,7 @@
 # Bubble Pandora Enterprise Alignment
 
-**Status:** Active mapping + sample data (updated 2026-10-15)
-**Bubble app:** `pandora-enterprise` (test version)
+**Status:** Active mapping + sample data + API Connector (updated 2026-10-15)
+**Bubble app:** `pandora-enterprise` (test version only — no live changes)
 **Canonical GitHub:** `pandora-rvw-314296438-20260820/pandoras-box`
 **Supabase projects:**
 - Core: `jcyqixttuebxqqfkjonq` (pandoras-box)
@@ -39,24 +39,35 @@
 - Supabase (external ID = core project ref, status Connected)
 - GitHub App (external ID = canonical repo, status Connected)
 
+## API Connector (test version)
+
+Collection: **Supabase Pandora** (id `bTGxL`)
+
+- **List Organizations** — GET `https://jcyqixttuebxqqfkjonq.supabase.co/rest/v1/organizations` (apikey + Authorization headers set to REPLACE_ME; user must fill real values in API Connector tab)
+- **Get Operator Status** — GET `https://pandoras-box.vercel.app/api/operator/status`
+
+Calls are defined but not yet initialized. After filling secrets, initialize them in the editor so response fields become available for workflows and data sources.
+
 ## Existing Alignment Points
 
 - Integration option set already includes Supabase, GitHub App, Vercel, PayPal, PostHog.
 - Tenant model aligns with multi-tenant organizations + memberships.
 - Audit events align with append-only audit tables.
-- Open PRs #1015–1018 document architecture, CORS, and integration plans.
+- Open PRs #1015–1018 document architecture, CORS, and integration plans. They remain open (behind main, require review/approval). Canonical status continues to come only from the authenticated operator status pack.
 
-## Changes Applied in Bubble (test)
+## Changes Applied in Bubble (test only)
 
 - Added external ID / linking fields to Tenant, User, Integration, and Audit.
 - Created new **Pandora Project** data type for explicit project-level linkage.
 - Populated sample tenants from live Supabase `organizations` read.
 - Added matching project and integration records.
+- Created API Connector collection + two calls.
 
-## Next Steps (governed)
+## Intentional boundaries
 
-1. Land PR #1018 (Bubble Enterprise CORS origin) if not already applied.
-2. Add Bubble API connector workflows that call Supabase Edge Functions under the governed path.
-3. Keep Bubble as the UI/control surface; never treat it as source of truth over verified provider evidence.
+- No live version changes.
+- No Edge Function calls or production writes.
+- Open PRs #1015–1018 left open pending normal review/merge process.
+- Evidence authority remains the authenticated `GET /api/operator/status` pack.
 
-Evidence authority remains the authenticated `GET /api/operator/status` pack. This document is a mapping aid only.
+This document is a mapping and setup aid only.
