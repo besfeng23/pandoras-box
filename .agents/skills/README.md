@@ -6,6 +6,7 @@ This catalog contains **51 governed foundation skills** plus **144 deterministic
 - Capability-fabric source base: `ea0cf99ad622247d59577f971b21eb56821530d5`
 - Strategy source SHA-256: `6118eb2872c9d2d3f4b9bcd1d1f36450e445a12a029b97ebcd251bd2540d0eed`
 - Registry: `registry.json`
+- Unified cross-runtime discovery index: `unified-registry.json`
 - Registry schema: `registry.schema.json`
 - Shared operating contract: `../AGENTS.md`
 - Static validator: `scripts/validate-pandora-skills.mjs`
