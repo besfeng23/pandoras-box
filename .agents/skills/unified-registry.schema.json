@@ -1,0 +1,50 @@
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pandora.invalid/schemas/unified-skill-registry-v1.json",
+  "title": "Pandora Unified Cross-Runtime Skill Registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "catalog_version", "source_repository", "source_base_sha", "generated_at", "purpose", "source_sets", "activation_policy", "skills"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "catalog_version": { "type": "string", "minLength": 1 },
+    "source_repository": { "const": "pandora-rvw-314296438-20260820/pandoras-box" },
+    "source_base_sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "purpose": { "type": "string", "minLength": 1 },
+    "source_sets": {
+      "type": "array", "minItems": 2, "maxItems": 2,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["source_system", "root", "skill_count", "scope"],
+        "properties": {
+          "source_system": { "enum": ["agents", "claude"] },
+          "root": { "type": "string" },
+          "native_registry": { "type": "string" },
+          "native_schema": { "type": "string" },
+          "readme": { "type": "string" },
+          "dependency_graph": { "type": "string" },
+          "evaluation_suite": { "type": "string" },
+          "skill_count": { "type": "integer", "minimum": 1 },
+          "scope": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "activation_policy": { "type": "string", "minLength": 1 },
+    "skills": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "source_system", "classification", "entrypoint", "metadata"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]{1,64}$" },
+          "source_system": { "enum": ["agents", "claude"] },
+          "classification": { "enum": ["foundation", "router", "governance-contract", "domain"] },
+          "entrypoint": { "type": "string", "pattern": "^(\\.agents/skills|\\.claude/skills)/.+/SKILL\\.md$" },
+          "metadata": { "type": "object" }
+        }
+      }
+    }
+  }
+}
