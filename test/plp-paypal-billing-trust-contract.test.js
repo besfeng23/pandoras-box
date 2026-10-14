@@ -55,7 +55,7 @@ test('billing actions cannot double submit and retries reuse the idempotency key
 });
 
 test('billing never calls PayPal directly, holds no secrets and no hard-coded organization', () => {
-  const api = fs.readFileSync(path.join(__dirname, '..', 'apps', 'pandora-mobile', 'lib', 'core', 'data', 'plp_paypal_billing_api.dart'), 'utf8');
+  const api = fs.readFileSync(path.join(__dirname, '..', 'apps', 'pandora-mobile', 'lib', 'features', 'enterprise', 'plp', 'data', 'plp_paypal_billing_api.dart'), 'utf8');
   for (const source of [billing, api]) {
     assert.doesNotMatch(source, /api(-m)?(\.sandbox)?\.paypal\.com|v1\/billing\/subscriptions|oauth2\/token/i);
     assert.doesNotMatch(source, /client_?secret|PAYPAL_SECRET|service_role|Basic /i);

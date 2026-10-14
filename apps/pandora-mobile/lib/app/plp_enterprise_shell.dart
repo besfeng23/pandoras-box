@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../core/data/pandora_intelligence_api.dart';
-import '../core/data/plp_paypal_billing_api.dart';
+import '../features/enterprise/plp/data/plp_paypal_billing_api.dart';
 import '../core/local/pandora_local_state_cache.dart';
 import '../core/widgets/pandora_navigation.dart';
 import '../features/approvals/approvals_screen.dart';

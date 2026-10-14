@@ -26,7 +26,7 @@ import '../../core/local/pandora_local_state_cache.dart';
 import '../../core/local/pandora_local_sync_coordinator.dart';
 import '../../core/local_ai/pandora_local_ai.dart';
 import '../../core/local_ai/pandora_local_ai_runtime.dart';
-import '../../core/local_ai/plp_chat_fallback.dart';
+import '../enterprise/plp/local_ai/plp_chat_fallback.dart';
 import '../../core/network/idempotency_key.dart';
 import '../../core/platform/pandora_native_io.dart';
 import '../../core/widgets/pandora_mark.dart';
