@@ -4,9 +4,9 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 
-const base = "ops/supabase/runtime-patches/pandora-owner-api-v76-base44-build-theatre";
+const base = "docs/supabase/runtime-patch-archive/pandora-owner-api-v76-base44-build-theatre";
 const manifest = JSON.parse(fs.readFileSync(base + "/manifest.json", "utf8"));
-const index = fs.readFileSync(base + "/index.ts", "utf8");
+const index = Buffer.from(fs.readFileSync(base + "/index.ts.base64", "utf8").trim(), "base64").toString("utf8");
 
 test("bounded Owner API artifact is pinned to provider v76 and canonical PR #487", () => {
   assert.equal(manifest.provider.functionSlug, "pandora-owner-api");

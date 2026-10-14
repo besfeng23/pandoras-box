@@ -19,5 +19,5 @@ operational-workspace.mjs) is still bundled from the immutable commit.
 The live return/cancel URL check (`pandora_plp_billing_checkout_v1`) only
 requires `https://`, so no backend return-host allowlist change was needed.
 
-Rollback: redeploy v99 = this directory's `index.ts` with `deno.json`
+Rollback reference (v99): reconstruct from this archived shim with `deno.json`
 reduced to `{"compilerOptions":{"strict":true}}` and no `contract.ts`.
