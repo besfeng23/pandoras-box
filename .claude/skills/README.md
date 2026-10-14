@@ -23,8 +23,9 @@ Reusable Claude skills for building, operating, reviewing, securing, deploying, 
     └── run_all.sh             full suite
 ```
 
-## Using it
+## Cross-runtime catalog
 
+The shared discovery projection is `.agents/skills/unified-registry.json`. It indexes these 33 domain skill entrypoints beside the 51 governed foundation entries without copying or replacing their source files. The native routing instructions, dependency graph, governance contract, and evaluation suite below remain authoritative for this runtime.\n\n## Using it\n
 Start at `pandora-router`. It classifies the request into one of four bands and loads only what that band needs:
 
 - **Band A** — a single read answers it. Load nothing.

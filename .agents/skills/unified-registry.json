@@ -1,0 +1,1474 @@
+{
+    "skills": [
+        {
+            "id": "auditing-security-and-privacy",
+            "metadata": {
+                "risk": "read",
+                "autonomy": "autonomous",
+                "category": "assurance",
+                "depends_on": [
+                    "designing-system-architecture",
+                    "designing-data-and-authorization",
+                    "managing-secrets-and-config"
+                ],
+                "capabilities": [
+                    "security-privacy",
+                    "governance",
+                    "verification"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/auditing-security-and-privacy/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "building-agents-and-automations",
+            "metadata": {
+                "risk": "reversible-write",
+                "autonomy": "autonomous-with-verification",
+                "category": "engineering",
+                "depends_on": [
+                    "designing-system-architecture",
+                    "threat-modeling-autonomous-actions"
+                ],
+                "capabilities": [
+                    "agents-automations",
+                    "governance",
+                    "repair"
+                ],
+                "lifecycle_phase": "horizontal-growth"
+            },
+            "entrypoint": ".agents/skills/building-agents-and-automations/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "building-applications",
+            "metadata": {
+                "risk": "reversible-write",
+                "autonomy": "autonomous-with-verification",
+                "category": "engineering",
+                "depends_on": [
+                    "designing-system-architecture",
+                    "designing-data-and-authorization"
+                ],
+                "capabilities": [
+                    "app-build",
+                    "technical-alpha",
+                    "source-provenance"
+                ],
+                "lifecycle_phase": "focused-entry"
+            },
+            "entrypoint": ".agents/skills/building-applications/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "capturing-outcome-telemetry",
+            "metadata": {
+                "risk": "reversible-write",
+                "autonomy": "autonomous-with-verification",
+                "category": "learning-data",
+                "depends_on": [
+                    "designing-system-architecture",
+                    "auditing-security-and-privacy"
+                ],
+                "capabilities": [
+                    "outcome-data",
+                    "memory",
+                    "evaluations"
+                ],
+                "lifecycle_phase": "horizontal-growth"
+            },
+            "entrypoint": ".agents/skills/capturing-outcome-telemetry/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "defining-focused-entry-wedges",
+            "metadata": {
+                "risk": "read",
+                "autonomy": "autonomous",
+                "category": "business-validation",
+                "depends_on": [
+                    "validating-customer-problems"
+                ],
+                "capabilities": [
+                    "focused-entry",
+                    "customer-validation",
+                    "strategy"
+                ],
+                "lifecycle_phase": "focused-entry"
+            },
+            "entrypoint": ".agents/skills/defining-focused-entry-wedges/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "delivering-enterprise-governance",
+            "metadata": {
+                "risk": "high-risk",
+                "autonomy": "approval-before-side-effect",
+                "category": "enterprise-ecosystem",
+                "depends_on": [
+                    "sequencing-platform-expansion",
+                    "auditing-security-and-privacy",
+                    "preserving-audit-lineage"
+                ],
+                "capabilities": [
+                    "enterprise",
+                    "governance",
+                    "security-privacy"
+                ],
+                "lifecycle_phase": "enterprise"
+            },
+            "entrypoint": ".agents/skills/delivering-enterprise-governance/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "deploying-with-exact-provenance",
+            "metadata": {
+                "risk": "high-risk",
+                "autonomy": "approval-before-side-effect",
+                "category": "delivery-runtime",
+                "depends_on": [
+                    "managing-environments",
+                    "testing-software-end-to-end",
+                    "preserving-source-provenance",
+                    "managing-approvals-and-risk"
+                ],
+                "capabilities": [
+                    "deployment",
+                    "source-provenance",
+                    "governance"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/deploying-with-exact-provenance/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "designing-data-and-authorization",
+            "metadata": {
+                "risk": "read",
+                "autonomy": "autonomous",
+                "category": "engineering",
+                "depends_on": [
+                    "designing-system-architecture"
+                ],
+                "capabilities": [
+                    "data-auth",
+                    "security-privacy",
+                    "migrations"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/designing-data-and-authorization/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "designing-mobile-accessible-experiences",
+            "metadata": {
+                "risk": "reversible-write",
+                "autonomy": "autonomous-with-verification",
+                "category": "product-experience",
+                "depends_on": [
+                    "translating-intent-to-specifications",
+                    "designing-simple-and-pro-modes"
+                ],
+                "capabilities": [
+                    "mobile-ux",
+                    "accessibility",
+                    "verification"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/designing-mobile-accessible-experiences/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "designing-simple-and-pro-modes",
+            "metadata": {
+                "risk": "read",
+                "autonomy": "autonomous",
+                "category": "product-experience",
+                "depends_on": [
+                    "translating-intent-to-specifications",
+                    "defining-focused-entry-wedges"
+                ],
+                "capabilities": [
+                    "product",
+                    "simple-mode",
+                    "professional-mode"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/designing-simple-and-pro-modes/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "designing-skills-and-connectors",
+            "metadata": {
+                "risk": "reversible-write",
+                "autonomy": "autonomous-with-verification",
+                "category": "enterprise-ecosystem",
+                "depends_on": [
+                    "designing-system-architecture",
+                    "planning-governed-actions"
+                ],
+                "capabilities": [
+                    "skills",
+                    "integrations",
+                    "evaluations"
+                ],
+                "lifecycle_phase": "horizontal-growth"
+            },
+            "entrypoint": ".agents/skills/designing-skills-and-connectors/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "designing-system-architecture",
+            "metadata": {
+                "risk": "read",
+                "autonomy": "autonomous",
+                "category": "engineering",
+                "depends_on": [
+                    "translating-intent-to-specifications",
+                    "planning-governed-actions"
+                ],
+                "capabilities": [
+                    "architecture",
+                    "governance",
+                    "runtime"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/designing-system-architecture/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "evaluating-unit-economics",
+            "metadata": {
+                "risk": "read",
+                "autonomy": "autonomous",
+                "category": "business-validation",
+                "depends_on": [
+                    "running-paid-pilot-validation",
+                    "measuring-activation-and-retention"
+                ],
+                "capabilities": [
+                    "unit-economics",
+                    "pricing",
+                    "runtime-cost"
+                ],
+                "lifecycle_phase": "focused-entry"
+            },
+            "entrypoint": ".agents/skills/evaluating-unit-economics/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "governing-customer-data-learning",
+            "metadata": {
+                "risk": "high-risk",
+                "autonomy": "fail-closed",
+                "category": "learning-data",
+                "depends_on": [
+                    "capturing-outcome-telemetry",
+                    "auditing-security-and-privacy",
+                    "managing-approvals-and-risk"
+                ],
+                "capabilities": [
+                    "outcome-data",
+                    "security-privacy",
+                    "regulated"
+                ],
+                "lifecycle_phase": "horizontal-growth"
+            },
+            "entrypoint": ".agents/skills/governing-customer-data-learning/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "governing-marketplace-readiness",
+            "metadata": {
+                "risk": "read",
+                "autonomy": "autonomous",
+                "category": "enterprise-ecosystem",
+                "depends_on": [
+                    "publishing-reusable-artifacts",
+                    "sequencing-platform-expansion",
+                    "evaluating-unit-economics"
+                ],
+                "capabilities": [
+                    "ecosystem",
+                    "marketplace",
+                    "unit-economics"
+                ],
+                "lifecycle_phase": "ecosystem"
+            },
+            "entrypoint": ".agents/skills/governing-marketplace-readiness/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "governing-regulated-features",
+            "metadata": {
+                "risk": "high-risk",
+                "autonomy": "fail-closed",
+                "category": "assurance",
+                "depends_on": [
+                    "auditing-security-and-privacy",
+                    "managing-approvals-and-risk"
+                ],
+                "capabilities": [
+                    "regulated",
+                    "governance",
+                    "security-privacy"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/governing-regulated-features/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "improving-skills-from-evidence",
+            "metadata": {
+                "risk": "reversible-write",
+                "autonomy": "autonomous-with-verification",
+                "category": "learning-data",
+                "depends_on": [
+                    "running-evaluations-and-experiments",
+                    "designing-skills-and-connectors"
+                ],
+                "capabilities": [
+                    "skills",
+                    "evaluations",
+                    "source-provenance"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/improving-skills-from-evidence/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "integrating-external-providers",
+            "metadata": {
+                "risk": "sensitive-write",
+                "autonomy": "approval-before-side-effect",
+                "category": "engineering",
+                "depends_on": [
+                    "designing-system-architecture",
+                    "managing-secrets-and-config",
+                    "planning-governed-actions"
+                ],
+                "capabilities": [
+                    "integrations",
+                    "governance",
+                    "security-privacy"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/integrating-external-providers/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "maintaining-operational-memory",
+            "metadata": {
+                "risk": "sensitive-write",
+                "autonomy": "approval-before-side-effect",
+                "category": "authority-memory",
+                "depends_on": [
+                    "recovering-canonical-project-state",
+                    "resolving-evidence-conflicts",
+                    "preserving-source-provenance"
+                ],
+                "capabilities": [
+                    "memory",
+                    "audit",
+                    "governance"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/maintaining-operational-memory/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "managing-approvals-and-risk",
+            "metadata": {
+                "risk": "sensitive-write",
+                "autonomy": "approval-before-side-effect",
+                "category": "authority-memory",
+                "depends_on": [
+                    "planning-governed-actions",
+                    "recovering-canonical-project-state"
+                ],
+                "capabilities": [
+                    "governance",
+                    "audit",
+                    "regulated"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/managing-approvals-and-risk/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "managing-dependencies-and-supply-chain",
+            "metadata": {
+                "risk": "reversible-write",
+                "autonomy": "autonomous-with-verification",
+                "category": "engineering",
+                "depends_on": [
+                    "designing-system-architecture",
+                    "preserving-source-provenance"
+                ],
+                "capabilities": [
+                    "supply-chain",
+                    "security-privacy",
+                    "verification"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/managing-dependencies-and-supply-chain/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "managing-environments",
+            "metadata": {
+                "risk": "sensitive-write",
+                "autonomy": "approval-before-side-effect",
+                "category": "delivery-runtime",
+                "depends_on": [
+                    "designing-system-architecture",
+                    "managing-secrets-and-config"
+                ],
+                "capabilities": [
+                    "environments",
+                    "deployment",
+                    "security-privacy"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/managing-environments/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "managing-incidents-and-recovery",
+            "metadata": {
+                "risk": "high-risk",
+                "autonomy": "approval-before-side-effect",
+                "category": "delivery-runtime",
+                "depends_on": [
+                    "operating-customer-systems",
+                    "managing-migrations-and-rollbacks",
+                    "preserving-audit-lineage"
+                ],
+                "capabilities": [
+                    "incident-response",
+                    "rollback",
+                    "verification"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/managing-incidents-and-recovery/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "managing-migrations-and-rollbacks",
+            "metadata": {
+                "risk": "sensitive-write",
+                "autonomy": "approval-before-side-effect",
+                "category": "assurance",
+                "depends_on": [
+                    "designing-data-and-authorization",
+                    "managing-environments",
+                    "testing-software-end-to-end"
+                ],
+                "capabilities": [
+                    "migrations",
+                    "rollback",
+                    "data-auth"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/managing-migrations-and-rollbacks/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "managing-portfolio-priorities",
+            "metadata": {
+                "risk": "read",
+                "autonomy": "autonomous",
+                "category": "orchestration",
+                "depends_on": [
+                    "recovering-canonical-project-state",
+                    "prioritizing-roadmap-evidence",
+                    "selecting-next-safe-action"
+                ],
+                "capabilities": [
+                    "portfolio",
+                    "planning",
+                    "governance"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/managing-portfolio-priorities/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "managing-secrets-and-config",
+            "metadata": {
+                "risk": "sensitive-write",
+                "autonomy": "approval-before-side-effect",
+                "category": "engineering",
+                "depends_on": [
+                    "designing-system-architecture",
+                    "managing-approvals-and-risk"
+                ],
+                "capabilities": [
+                    "security-privacy",
+                    "environments",
+                    "integrations"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/managing-secrets-and-config/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "measuring-activation-and-retention",
+            "metadata": {
+                "risk": "read",
+                "autonomy": "autonomous",
+                "category": "business-validation",
+                "depends_on": [
+                    "running-paid-pilot-validation"
+                ],
+                "capabilities": [
+                    "retention",
+                    "customer-outcome",
+                    "analytics"
+                ],
+                "lifecycle_phase": "focused-entry"
+            },
+            "entrypoint": ".agents/skills/measuring-activation-and-retention/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "monitoring-runtime-and-costs",
+            "metadata": {
+                "risk": "read",
+                "autonomy": "autonomous",
+                "category": "delivery-runtime",
+                "depends_on": [
+                    "verifying-production-outcomes",
+                    "evaluating-unit-economics"
+                ],
+                "capabilities": [
+                    "monitoring",
+                    "runtime-cost",
+                    "reliability"
+                ],
+                "lifecycle_phase": "horizontal-growth"
+            },
+            "entrypoint": ".agents/skills/monitoring-runtime-and-costs/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "operating-customer-systems",
+            "metadata": {
+                "risk": "sensitive-write",
+                "autonomy": "approval-before-side-effect",
+                "category": "delivery-runtime",
+                "depends_on": [
+                    "verifying-production-outcomes",
+                    "monitoring-runtime-and-costs"
+                ],
+                "capabilities": [
+                    "runtime",
+                    "customer-outcome",
+                    "enterprise"
+                ],
+                "lifecycle_phase": "horizontal-growth"
+            },
+            "entrypoint": ".agents/skills/operating-customer-systems/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "orchestrating-intent-to-working-system",
+            "metadata": {
+                "risk": "sensitive-write",
+                "autonomy": "approval-before-side-effect",
+                "category": "orchestration",
+                "depends_on": [
+                    "recovering-canonical-project-state",
+                    "translating-intent-to-specifications",
+                    "planning-governed-actions",
+                    "designing-system-architecture",
+                    "testing-software-end-to-end",
+                    "deploying-with-exact-provenance",
+                    "verifying-production-outcomes",
+                    "maintaining-operational-memory"
+                ],
+                "capabilities": [
+                    "intent",
+                    "orchestration",
+                    "production-verification"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/orchestrating-intent-to-working-system/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "planning-governed-actions",
+            "metadata": {
+                "risk": "reversible-write",
+                "autonomy": "autonomous",
+                "category": "authority-memory",
+                "depends_on": [
+                    "recovering-canonical-project-state"
+                ],
+                "capabilities": [
+                    "planning",
+                    "governance",
+                    "audit"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/planning-governed-actions/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "preserving-audit-lineage",
+            "metadata": {
+                "risk": "sensitive-write",
+                "autonomy": "autonomous-with-verification",
+                "category": "authority-memory",
+                "depends_on": [
+                    "planning-governed-actions",
+                    "managing-approvals-and-risk"
+                ],
+                "capabilities": [
+                    "audit",
+                    "verification",
+                    "governance"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/preserving-audit-lineage/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "preserving-source-provenance",
+            "metadata": {
+                "risk": "reversible-write",
+                "autonomy": "autonomous-with-verification",
+                "category": "authority-memory",
+                "depends_on": [
+                    "recovering-canonical-project-state"
+                ],
+                "capabilities": [
+                    "source-provenance",
+                    "rollback",
+                    "verification"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/preserving-source-provenance/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "prioritizing-roadmap-evidence",
+            "metadata": {
+                "risk": "read",
+                "autonomy": "autonomous",
+                "category": "business-validation",
+                "depends_on": [
+                    "translating-intent-to-specifications",
+                    "planning-governed-actions"
+                ],
+                "capabilities": [
+                    "roadmap",
+                    "strategy",
+                    "evidence"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/prioritizing-roadmap-evidence/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "publishing-reusable-artifacts",
+            "metadata": {
+                "risk": "sensitive-write",
+                "autonomy": "approval-before-side-effect",
+                "category": "enterprise-ecosystem",
+                "depends_on": [
+                    "designing-skills-and-connectors",
+                    "reviewing-code-independently",
+                    "auditing-security-and-privacy"
+                ],
+                "capabilities": [
+                    "ecosystem",
+                    "skills",
+                    "source-provenance"
+                ],
+                "lifecycle_phase": "ecosystem"
+            },
+            "entrypoint": ".agents/skills/publishing-reusable-artifacts/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "recovering-canonical-project-state",
+            "metadata": {
+                "risk": "read",
+                "autonomy": "autonomous",
+                "category": "authority-memory",
+                "depends_on": [
+                ],
+                "capabilities": [
+                    "memory",
+                    "verification",
+                    "governance"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/recovering-canonical-project-state/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "repairing-failures-autonomously",
+            "metadata": {
+                "risk": "sensitive-write",
+                "autonomy": "approval-before-side-effect",
+                "category": "delivery-runtime",
+                "depends_on": [
+                    "operating-customer-systems",
+                    "planning-governed-actions",
+                    "managing-approvals-and-risk"
+                ],
+                "capabilities": [
+                    "repair",
+                    "testing",
+                    "audit"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/repairing-failures-autonomously/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "reporting-proof-based-status",
+            "metadata": {
+                "risk": "read",
+                "autonomy": "autonomous",
+                "category": "authority-memory",
+                "depends_on": [
+                    "recovering-canonical-project-state",
+                    "preserving-audit-lineage"
+                ],
+                "capabilities": [
+                    "verification",
+                    "memory",
+                    "portfolio"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/reporting-proof-based-status/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "resolving-evidence-conflicts",
+            "metadata": {
+                "risk": "read",
+                "autonomy": "autonomous",
+                "category": "authority-memory",
+                "depends_on": [
+                    "recovering-canonical-project-state"
+                ],
+                "capabilities": [
+                    "memory",
+                    "source-provenance",
+                    "verification"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/resolving-evidence-conflicts/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "reviewing-code-independently",
+            "metadata": {
+                "risk": "read",
+                "autonomy": "autonomous",
+                "category": "assurance",
+                "depends_on": [
+                    "planning-governed-actions",
+                    "preserving-source-provenance"
+                ],
+                "capabilities": [
+                    "independent-review",
+                    "security-privacy",
+                    "verification"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/reviewing-code-independently/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "routing-models-by-outcome",
+            "metadata": {
+                "risk": "reversible-write",
+                "autonomy": "autonomous-with-verification",
+                "category": "engineering",
+                "depends_on": [
+                    "designing-system-architecture",
+                    "evaluating-unit-economics",
+                    "running-evaluations-and-experiments"
+                ],
+                "capabilities": [
+                    "model-routing",
+                    "unit-economics",
+                    "evaluations"
+                ],
+                "lifecycle_phase": "horizontal-growth"
+            },
+            "entrypoint": ".agents/skills/routing-models-by-outcome/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "running-evaluations-and-experiments",
+            "metadata": {
+                "risk": "reversible-write",
+                "autonomy": "autonomous-with-verification",
+                "category": "learning-data",
+                "depends_on": [
+                    "capturing-outcome-telemetry"
+                ],
+                "capabilities": [
+                    "evaluations",
+                    "experiments",
+                    "model-routing"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/running-evaluations-and-experiments/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "running-paid-pilot-validation",
+            "metadata": {
+                "risk": "sensitive-write",
+                "autonomy": "approval-before-side-effect",
+                "category": "business-validation",
+                "depends_on": [
+                    "defining-focused-entry-wedges",
+                    "planning-governed-actions",
+                    "managing-approvals-and-risk"
+                ],
+                "capabilities": [
+                    "paid-validation",
+                    "customer-outcome",
+                    "unit-economics"
+                ],
+                "lifecycle_phase": "focused-entry"
+            },
+            "entrypoint": ".agents/skills/running-paid-pilot-validation/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "selecting-next-safe-action",
+            "metadata": {
+                "risk": "read",
+                "autonomy": "autonomous",
+                "category": "authority-memory",
+                "depends_on": [
+                    "recovering-canonical-project-state",
+                    "planning-governed-actions"
+                ],
+                "capabilities": [
+                    "planning",
+                    "portfolio",
+                    "governance"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/selecting-next-safe-action/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "sequencing-platform-expansion",
+            "metadata": {
+                "risk": "read",
+                "autonomy": "autonomous",
+                "category": "business-validation",
+                "depends_on": [
+                    "prioritizing-roadmap-evidence",
+                    "measuring-activation-and-retention",
+                    "evaluating-unit-economics"
+                ],
+                "capabilities": [
+                    "horizontal-growth",
+                    "enterprise",
+                    "ecosystem"
+                ],
+                "lifecycle_phase": "horizontal-growth"
+            },
+            "entrypoint": ".agents/skills/sequencing-platform-expansion/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "testing-software-end-to-end",
+            "metadata": {
+                "risk": "reversible-write",
+                "autonomy": "autonomous-with-verification",
+                "category": "assurance",
+                "depends_on": [
+                    "building-applications",
+                    "building-agents-and-automations"
+                ],
+                "capabilities": [
+                    "testing",
+                    "verification",
+                    "technical-alpha"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/testing-software-end-to-end/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "threat-modeling-autonomous-actions",
+            "metadata": {
+                "risk": "read",
+                "autonomy": "autonomous",
+                "category": "assurance",
+                "depends_on": [
+                    "designing-system-architecture",
+                    "auditing-security-and-privacy"
+                ],
+                "capabilities": [
+                    "agents-automations",
+                    "security-privacy",
+                    "governance"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/threat-modeling-autonomous-actions/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "translating-intent-to-specifications",
+            "metadata": {
+                "risk": "read",
+                "autonomy": "autonomous",
+                "category": "discovery-product",
+                "depends_on": [
+                    "recovering-canonical-project-state"
+                ],
+                "capabilities": [
+                    "intent",
+                    "planning",
+                    "product"
+                ],
+                "lifecycle_phase": "focused-entry"
+            },
+            "entrypoint": ".agents/skills/translating-intent-to-specifications/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "validating-customer-problems",
+            "metadata": {
+                "risk": "reversible-write",
+                "autonomy": "autonomous-with-verification",
+                "category": "business-validation",
+                "depends_on": [
+                    "translating-intent-to-specifications"
+                ],
+                "capabilities": [
+                    "customer-validation",
+                    "focused-entry",
+                    "evidence"
+                ],
+                "lifecycle_phase": "focused-entry"
+            },
+            "entrypoint": ".agents/skills/validating-customer-problems/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "validating-performance-and-reliability",
+            "metadata": {
+                "risk": "reversible-write",
+                "autonomy": "autonomous-with-verification",
+                "category": "assurance",
+                "depends_on": [
+                    "building-applications",
+                    "testing-software-end-to-end"
+                ],
+                "capabilities": [
+                    "reliability",
+                    "performance",
+                    "runtime"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/validating-performance-and-reliability/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "verifying-production-outcomes",
+            "metadata": {
+                "risk": "read",
+                "autonomy": "autonomous",
+                "category": "delivery-runtime",
+                "depends_on": [
+                    "deploying-with-exact-provenance"
+                ],
+                "capabilities": [
+                    "production-verification",
+                    "customer-outcome",
+                    "verification"
+                ],
+                "lifecycle_phase": "all"
+            },
+            "entrypoint": ".agents/skills/verifying-production-outcomes/SKILL.md",
+            "source_system": "agents",
+            "classification": "foundation"
+        },
+        {
+            "id": "pandora-ai-routing",
+            "metadata": {
+                "display_name": "Pandora Ai Routing",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-ai-routing/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-architecture",
+            "metadata": {
+                "display_name": "Pandora Architecture",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-architecture/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-auth",
+            "metadata": {
+                "display_name": "Pandora Auth",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-auth/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-cicd",
+            "metadata": {
+                "display_name": "Pandora Cicd",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-cicd/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-commercial-validation",
+            "metadata": {
+                "display_name": "Pandora Commercial Validation",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-commercial-validation/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-control-tower",
+            "metadata": {
+                "display_name": "Pandora Control Tower",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-control-tower/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-deployment-release",
+            "metadata": {
+                "display_name": "Pandora Deployment Release",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-deployment-release/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-disaster-recovery",
+            "metadata": {
+                "display_name": "Pandora Disaster Recovery",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-disaster-recovery/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-documentation",
+            "metadata": {
+                "display_name": "Pandora Documentation",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-documentation/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-ecosystem",
+            "metadata": {
+                "display_name": "Pandora Ecosystem",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-ecosystem/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-evidence-ledger",
+            "metadata": {
+                "display_name": "Pandora Evidence Ledger",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-evidence-ledger/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-exact-head-review",
+            "metadata": {
+                "display_name": "Pandora Exact Head Review",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-exact-head-review/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-governance-contract",
+            "metadata": {
+                "display_name": "Pandora Governance Contract",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-governance-contract/SKILL.md",
+            "source_system": "claude",
+            "classification": "governance-contract"
+        },
+        {
+            "id": "pandora-governed-execution",
+            "metadata": {
+                "display_name": "Pandora Governed Execution",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-governed-execution/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-gtm-customer",
+            "metadata": {
+                "display_name": "Pandora Gtm Customer",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-gtm-customer/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-implementation",
+            "metadata": {
+                "display_name": "Pandora Implementation",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-implementation/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-mcp-discovery",
+            "metadata": {
+                "display_name": "Pandora Mcp Discovery",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-mcp-discovery/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-memory-context",
+            "metadata": {
+                "display_name": "Pandora Memory Context",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-memory-context/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-mobile-flutter",
+            "metadata": {
+                "display_name": "Pandora Mobile Flutter",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-mobile-flutter/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-performance",
+            "metadata": {
+                "display_name": "Pandora Performance",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-performance/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-privacy-data-governance",
+            "metadata": {
+                "display_name": "Pandora Privacy Data Governance",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-privacy-data-governance/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-project-recovery",
+            "metadata": {
+                "display_name": "Pandora Project Recovery",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-project-recovery/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-provider-adapter",
+            "metadata": {
+                "display_name": "Pandora Provider Adapter",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-provider-adapter/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-regulated-activation",
+            "metadata": {
+                "display_name": "Pandora Regulated Activation",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-regulated-activation/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-requirements",
+            "metadata": {
+                "display_name": "Pandora Requirements",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-requirements/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-router",
+            "metadata": {
+                "display_name": "Pandora Router",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-router/SKILL.md",
+            "source_system": "claude",
+            "classification": "router"
+        },
+        {
+            "id": "pandora-runtime-observability",
+            "metadata": {
+                "display_name": "Pandora Runtime Observability",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-runtime-observability/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-security-review",
+            "metadata": {
+                "display_name": "Pandora Security Review",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-security-review/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-source-control",
+            "metadata": {
+                "display_name": "Pandora Source Control",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-source-control/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-supabase",
+            "metadata": {
+                "display_name": "Pandora Supabase",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-supabase/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-testing",
+            "metadata": {
+                "display_name": "Pandora Testing",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-testing/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-ui-ux",
+            "metadata": {
+                "display_name": "Pandora Ui Ux",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-ui-ux/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        },
+        {
+            "id": "pandora-unit-economics",
+            "metadata": {
+                "display_name": "Pandora Unit Economics",
+                "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+                "evaluation_suite": ".claude/skills/evals/run_all.sh"
+            },
+            "entrypoint": ".claude/skills/pandora-unit-economics/SKILL.md",
+            "source_system": "claude",
+            "classification": "domain"
+        }
+    ],
+    "purpose": "Cross-runtime discovery index for the 51 governed .agents foundation skills and 33 .claude domain skills. Original entrypoints remain in their native runtime directories.",
+    "source_sets": [
+        {
+            "root": ".agents/skills",
+            "scope": "Governed foundation skills. Deterministic capability-fabric artifacts remain governed by their existing process.",
+            "skill_count": 51,
+            "native_schema": ".agents/skills/registry.schema.json",
+            "source_system": "agents",
+            "native_registry": ".agents/skills/registry.json"
+        },
+        {
+            "root": ".claude/skills",
+            "scope": "Router, governance contract, and domain skill entrypoints; original evaluations and dependency graph remain authoritative.",
+            "readme": ".claude/skills/README.md",
+            "skill_count": 33,
+            "source_system": "claude",
+            "dependency_graph": ".claude/skills/DEPENDENCY_GRAPH.md",
+            "evaluation_suite": ".claude/skills/evals/run_all.sh"
+        }
+    ],
+    "generated_at": "2026-10-14T19:11:47Z",
+    "schema_version": "1.0.0",
+    "catalog_version": "1.0.0",
+    "source_base_sha": "f6b3759117db167bf9a2666f55fa290b77f116fe",
+    "activation_policy": "Discovery index only; native skill files, native registries, runtime routing, and existing proof gates remain authoritative. Repository presence is not proof of runtime or production activation.",
+    "source_repository": "pandora-rvw-314296438-20260820/pandoras-box"
+}
