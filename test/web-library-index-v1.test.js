@@ -5,8 +5,8 @@ const test=require('node:test');
 const root=path.resolve(__dirname,'..');
 const read=(...parts)=>fs.readFileSync(path.join(root,...parts),'utf8');
 
-const api=read('apps','meta-business-mcp','src','operator','api.js');
-const index=read('apps','meta-business-mcp','src','operator','library-index.js');
+const api=read('src','operator','api.js');
+const index=read('src','operator','library-index.js');
 const app=read('apps','control-tower','owner-app.js');
 const professional=read('apps','control-tower','owner-professional.js');
 

@@ -3,7 +3,7 @@ import { createHttpApp } from '../src/http-app.js';
 import { loadOperatorPublicConfig } from '../src/operator-public-config.js';
 import { SupabaseBearerAuthenticator } from '../apps/meta-business-mcp/src/auth/supabase-bearer.js';
 import { SupabaseOrganizationMembershipResolver } from '../apps/meta-business-mcp/src/auth/membership.js';
-import { createOperatorApiApp } from '../apps/meta-business-mcp/src/operator/api.js';
+import { createOperatorApiApp } from '../src/operator/api.js';
 import { createCanonicalStatusProviderFromEnvironment } from '../src/projectos/canonical-status-provider.js';
 import { WorkerPlanContextProvider } from '../src/projectos/worker-plan-context-provider.js';
 import { resolveVercelWorkloadToken } from '../src/runtime/vercel-workload-identity.js';
