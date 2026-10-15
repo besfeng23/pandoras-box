@@ -137,7 +137,7 @@ function createContainerOperatorRuntime(environment) {
     const config = (0, operator_public_config_js_1.loadOperatorPublicConfig)(environment);
     const { SupabaseBearerAuthenticator, } = require('../apps/meta-business-mcp/dist/auth/supabase-bearer.js');
     const { SupabaseOrganizationMembershipResolver, } = require('../apps/meta-business-mcp/dist/auth/membership.js');
-    const { createOperatorApiApp, } = require('../apps/meta-business-mcp/dist/operator/api.js');
+    const { createOperatorApiApp, } = require('./operator/api.js');
     const authenticator = new SupabaseBearerAuthenticator({
         supabaseUrl: config.supabaseUrl,
         publishableKey: config.supabasePublishableKey,

@@ -36,6 +36,14 @@ test('Meta MCP operator tests import canonical sources, not app-local wrapper ou
   }
 });
 
+test('the shared container entrypoints import the canonical operator source', () => {
+  for (const file of ['src/pandora-container-server.js', 'src/projectos-container-server.js']) {
+    const source = fs.readFileSync(path.join(root, file), 'utf8');
+    assert.ok(source.includes("require('./operator/api.js')"), file + ' must resolve the canonical operator runtime');
+    assert.ok(!source.includes('apps/meta-business-mcp/dist/operator/api.js'), file + ' must not load the deleted Meta MCP wrapper');
+  }
+});
+
 test('the Vercel operator route imports the canonical implementation', () => {
   const route = fs.readFileSync(path.join(root, 'api/operator.ts'), 'utf8');
   assert.ok(route.includes("import { createOperatorApiApp } from '../src/operator/api.js';"));
