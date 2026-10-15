@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pandora_mobile/core/local_ai/plp_chat_fallback.dart';
+import 'package:pandora_mobile/features/enterprise/plp/local_ai/plp_chat_fallback.dart';
 
 Map<String, Object?> snapshot(Map<String, Object?> today) => {
       'organization': {'propertySlug': 'plp-boracay'},

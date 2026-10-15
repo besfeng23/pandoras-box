@@ -27,18 +27,62 @@ class PlpChatFallback {
     final tasks = _integer(today['open_staff_tasks']);
     final conflicts = _integer(today['open_ota_conflicts']);
 
+    final state = _text(source['state'], fallback: 'unknown').toLowerCase();
+    final detail = _text(source['message'], fallback: 'No current provider status message is recorded.');
+    final hasMockRecords = source['has_mock'] == true ||
+        source['hasMock'] == true ||
+        context['has_mock'] == true ||
+        context['hasMock'] == true;
+    final isStaleLike = hasMockRecords ||
+        const {
+          'stale',
+          'unknown',
+          'unavailable',
+          'not_connected',
+          'disconnected',
+          'mock',
+          'mocked',
+          'demo',
+          'expired',
+          'error',
+        }.contains(state);
+
     if (const {
       'how are things', 'how are things?', 'how is everything', 'how is everything?',
       'how is the resort', 'how is the resort?', 'how are things at plp', 'how are things at plp?',
       'what is happening', 'what is happening?', 'whats happening', 'whats happening?',
       'how is plp', 'how is plp?', 'resort status', 'status',
     }.contains(normalized)) {
-      final state = _text(source['state'], fallback: 'unknown');
-      final detail = _text(source['message'], fallback: 'No current provider status message is recorded.');
-      if (state == 'stale' || state == 'unknown' || state == 'unavailable') {
-        return 'PLP status: source state is $state. $detail The figures available here are from the last synchronized snapshot, not a live provider refresh.';
+      if (isStaleLike) {
+        final mockNote = hasMockRecords
+            ? ' Mock/QA records are also flagged in the available context.'
+            : '';
+        return 'PLP status: source state is $state. $detail$mockNote The figures available here are from the last synchronized snapshot, not a live provider refresh.\n\nNext steps: verify the customer tenant, connect or repair its approved PMS/OTA integration, complete a successful provider sync, and quarantine mock records only after confirming they are test data. The backend must verify freshness and source health before this can be described as live.';
       }
       return 'PLP status: source state is $state. $detail';
+    }
+
+    if (normalized.contains('what do we need to do') ||
+        normalized.contains('what do we need') ||
+        normalized.contains('how do we fix') ||
+        normalized.contains('how to fix') ||
+        normalized.contains('make it live') ||
+        normalized.contains('make live') ||
+        normalized.contains('refresh source') ||
+        normalized.contains('update source')) {
+      if (isStaleLike) {
+        return 'To move PLP from $state toward verified live data:\n'
+            '1. Confirm the active organization is the intended customer tenant, not demo or staging.\n'
+            '2. Check the approved PMS/OTA integration and its authorization; reconnect it if needed.\n'
+            '3. Run the supported provider synchronization and inspect its result.\n'
+            '4. Quarantine mock/QA records only after confirming their tenant and test-data provenance; do not delete real guest or financial records.\n'
+            '5. Refresh the workspace and confirm a fresh observation timestamp and healthy source status from the backend.\n\n'
+            'Do not manually mark source_status healthy or advance source_observed_at to simulate success. This chat fallback cannot run a provider refresh or verify live data; figures remain snapshot data until the backend confirms a successful sync.';
+      }
+      if (hasMockRecords) {
+        return 'The reported source state is $state, but mock/QA records are flagged. $detail Verify tenant and record provenance, quarantine only confirmed test data, then run and verify the approved provider sync. This fallback cannot certify the data as live.';
+      }
+      return 'The reported source state is $state. $detail This fallback cannot independently verify provider freshness. Confirm the latest successful backend sync and observation timestamp before treating the data as live.';
     }
 
     final suffix =
@@ -102,8 +146,6 @@ class PlpChatFallback {
         normalized.contains('provider status') ||
         normalized.contains('data live') ||
         normalized.contains('data current')) {
-      final state = _text(source['state'], fallback: 'unknown');
-      final detail = _text(source['message'], fallback: 'No provider status message');
       return 'PLP source state is $state. $detail.$suffix';
     }
     if (normalized == 'today' ||
