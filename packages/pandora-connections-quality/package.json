@@ -1,0 +1,19 @@
+
+ {
+  "name": "@pandora/connections-quality",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Auditable quality primitives for connection health, replay defense, tenant isolation, and flow verification",
+  "exports": {
+    "./audit-chain": "./src/audit-chain.mjs",
+    "./flow-harness": "./src/flow-harness.mjs",
+    "./health-monitor": "./src/health-monitor.mjs",
+    "./tenant-isolation": "./src/tenant-isolation.mjs",
+    "./webhook-defense": "./src/webhook-defense.mjs"
+  },
+  "scripts": {
+    "test": "node --test ../../test/pandora-connections-quality-*.test.js ../../test/pandora-connections-tenant-isolation.test.js"
+  },
+  "engines": { "node": ">=24.0.0 <25.0.0" }
+}
