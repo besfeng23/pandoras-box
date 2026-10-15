@@ -89,6 +89,8 @@
     },
     "workspaces": [
         "apps/meta-business-mcp",
+        "packages/pandora-connections-core",
+        "packages/pandora-connections-quality",
         "packages/shared-security"
     ],
     "description": "Pandoras-Box control plane with the MCPMaster secure provider gateway runtime",

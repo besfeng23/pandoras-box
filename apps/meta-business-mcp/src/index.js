@@ -24,7 +24,6 @@ __exportStar(require("./drafts/supabase-store"), exports);
 __exportStar(require("./mcp/handler"), exports);
 __exportStar(require("./mcp/server"), exports);
 __exportStar(require("./mcp/tools"), exports);
-__exportStar(require("./meta/provider"), exports);
 __exportStar(require("./meta/synthetic-provider"), exports);
 __exportStar(require("./meta/official-read-provider"), exports);
 __exportStar(require("./runtime/official-runtime"), exports);
