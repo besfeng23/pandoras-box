@@ -106,7 +106,8 @@ test('Verify preserves READY versus LIVE semantics', () => {
 
 test('Admin advanced link resolves through the Pandora-native owner shell', () => {
   assert.ok(professional.includes('href="?advanced=1"'));
-  assert.match(bootstrap, /owner-first\.js/);
+  assert.match(bootstrap, /\/control-tower\/owner-app\.js/);
+  assert.doesNotMatch(bootstrap, /owner-first\.js/);
   assert.doesNotMatch(bootstrap, /\/control-tower\/app\.js/);
   assert.doesNotMatch(bootstrap, /projectos/i);
 });
