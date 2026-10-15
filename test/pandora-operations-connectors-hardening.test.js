@@ -47,7 +47,7 @@ test("The real CLI-generated migration is byte-identical to tested delivery SQL"
 
 test("Connector CI preserves native dependency scopes in the canonical Operations workflow", () => {
   const workflow = fs.readFileSync(path.join(__dirname, "../.github/workflows/ci-operations.yml"), "utf8");
-  const match = workflow.match(/SCOPE_CONFIG:\\s*\\|\\s*\\r?\\n\\s+(\\{[^\\r\\n]+\\})/);
+  const match = workflow.match(/SCOPE_CONFIG:\s*\|\s*\r?\n\s+(\{[^\r\n]+\})/);
   assert.ok(match, "canonical Operations scope configuration must exist");
   const config = JSON.parse(match[1]);
   for (const event of ["pull_request", "push"]) {
