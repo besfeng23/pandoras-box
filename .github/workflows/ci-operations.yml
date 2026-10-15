@@ -44,6 +44,7 @@ jobs:
       operations_room_rollout: ${{ steps.detect.outputs.operations_room_rollout }}
       operations_room_runtime: ${{ steps.detect.outputs.operations_room_runtime }}
       operations_runtime_seams: ${{ steps.detect.outputs.operations_runtime_seams }}
+      operations_runtime_seams_mobile_events: ${{ steps.detect.outputs.operations_runtime_seams_mobile_events }}
     steps:
       - name: Check out source for path comparison
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
@@ -100,6 +101,8 @@ jobs:
                   return True
               return event in ("schedule","workflow_run")
           values=[name.replace("-","_")+"="+("true" if scoped(name,s) else "false") for name,s in cfg.items()]
+          mobile_event_scope = (event == "workflow_dispatch" and target in ("all", "operations-runtime-seams")) or (event in ("pull_request", "push") and any(fnmatch.fnmatchcase(f, "apps/pandora-mobile/**") for f in changed))
+          values.append("operations_runtime_seams_mobile_events=" + ("true" if mobile_event_scope else "false"))
           with open(os.environ["GITHUB_OUTPUT"],"a",encoding="utf-8") as f:f.write("\n".join(values)+"\n")
           print("Changed paths:",len(changed));print("\n".join(values))
           PY
@@ -387,7 +390,7 @@ jobs:
     env:
       EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
     needs: detect_scopes
-    if: ${{ needs.detect_scopes.outputs.operations_runtime_seams == 'true' }}
+    if: ${{ needs.detect_scopes.outputs.operations_runtime_seams == 'true' && needs.detect_scopes.outputs.operations_runtime_seams_mobile_events == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
