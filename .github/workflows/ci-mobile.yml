@@ -1,4 +1,4 @@
-name: Pandora CI Mobile
+name: Pandora mobile exact-source gate
 
 on:
   pull_request:
