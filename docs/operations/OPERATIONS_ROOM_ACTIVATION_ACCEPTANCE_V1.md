@@ -108,7 +108,7 @@ receipt. A browser-side DONE cell cannot authorize or verify a task.
 The new isolated PGlite tests execute the actual unchanged #728 migration and
 catalogue/count queries. They prove SQL behavior in a disposable database, not
 production installation, concurrent client races, real credentials or workers.
-Existing PostgreSQL race coverage remains in operations-room-runtime.yml.
+Existing PostgreSQL race coverage remains in ci-operations.yml.
 Dedicated rollout CI uses exact PR head, read-only repository permissions and
 locked dependencies without lifecycle scripts. Runtime acceptance is separate.
 

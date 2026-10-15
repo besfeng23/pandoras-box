@@ -279,7 +279,6 @@ jobs:
     name: node24
     needs: detect_scopes
     if: ${{ needs.detect_scopes.outputs.pandora_node24 == 'true' }}
-    name: plat_node24_node24
     runs-on: ubuntu-24.04
     timeout-minutes: 35
     steps:
