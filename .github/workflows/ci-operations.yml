@@ -1,0 +1,409 @@
+name: Pandora CI Operations
+
+on:
+  pull_request:
+  push:
+    branches:
+      - 'main'
+      - 'feat/operations-inference-theatre-20260926'
+      - 'feat/operations-runtime-seams-20260926'
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Select the operations workflow to run manually
+        required: true
+        type: choice
+        default: none
+        options:
+          - 'none'
+          - 'all'
+          - 'operations-connectors'
+          - 'operations-inference-theatre'
+          - 'operations-memory-client'
+          - 'operations-memory-performance-client'
+          - 'operations-room-rollout'
+          - 'operations-room-runtime'
+          - 'operations-runtime-seams'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-operations-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect_scopes:
+    name: Detect operations test scopes
+    runs-on: ubuntu-24.04
+    outputs:
+      operations_connectors: ${{ steps.detect.outputs.operations_connectors }}
+      operations_inference_theatre: ${{ steps.detect.outputs.operations_inference_theatre }}
+      operations_memory_client: ${{ steps.detect.outputs.operations_memory_client }}
+      operations_memory_performance_client: ${{ steps.detect.outputs.operations_memory_performance_client }}
+      operations_room_rollout: ${{ steps.detect.outputs.operations_room_rollout }}
+      operations_room_runtime: ${{ steps.detect.outputs.operations_room_runtime }}
+      operations_runtime_seams: ${{ steps.detect.outputs.operations_runtime_seams }}
+    steps:
+      - name: Check out source for path comparison
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - id: detect
+        name: Resolve the relevant original workflow scopes
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_SHA: ${{ github.sha }}
+          BEFORE_SHA: ${{ github.event.before || '' }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || '' }}
+          BASE_BRANCH: ${{ github.event.pull_request.base.ref || 'main' }}
+          PUSH_BRANCH: ${{ github.ref_name }}
+          TARGET: ${{ github.event.inputs.target || 'none' }}
+          SCOPE_CONFIG: |
+            {"operations-connectors":{"pull_request":{"present":true,"paths":["packages/pandora-operations-connectors/**","packages/pandora-operations-room/**","packages/pandora-verification/**","supabase/migrations/**","api/operations-native-worker.ts","supabase/functions/mcpmaster-supabase-control/**","package.json","package-lock.json","test/pandora-operations-connectors*.test.js",".github/workflows/operations-connectors.yml"],"pathsIgnore":null,"branches":null,"branchesIgnore":null},"push":{"present":true,"paths":["packages/pandora-operations-connectors/**","packages/pandora-operations-room/**","packages/pandora-verification/**","supabase/migrations/**","api/operations-native-worker.ts","supabase/functions/mcpmaster-supabase-control/**","package.json","package-lock.json","test/pandora-operations-connectors*.test.js",".github/workflows/operations-connectors.yml"],"pathsIgnore":null,"branches":["main"],"branchesIgnore":null},"merge_group":{"present":false},"workflow_dispatch":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"schedule":{"present":false},"workflow_run":{"present":false}},"operations-inference-theatre":{"pull_request":{"present":true,"paths":["packages/pandora-operations-inference/**","supabase/functions/pandora-intelligence-router/**","test/pandora-operations-inference*.test.js",".github/workflows/operations-inference-theatre.yml","supabase/migrations/**"],"pathsIgnore":null,"branches":null,"branchesIgnore":null},"push":{"present":true,"paths":["packages/pandora-operations-inference/**","supabase/functions/pandora-intelligence-router/**","test/pandora-operations-inference*.test.js",".github/workflows/operations-inference-theatre.yml","supabase/migrations/**"],"pathsIgnore":null,"branches":["main","feat/operations-inference-theatre-20260926"],"branchesIgnore":null},"merge_group":{"present":false},"workflow_dispatch":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"schedule":{"present":false},"workflow_run":{"present":false}},"operations-memory-client":{"pull_request":{"present":true,"paths":["packages/pandora-operations-memory/**","test/pandora-operations-memory*.test.js",".github/workflows/operations-memory-client.yml"],"pathsIgnore":null,"branches":null,"branchesIgnore":null},"push":{"present":true,"paths":["packages/pandora-operations-memory/**","test/pandora-operations-memory*.test.js",".github/workflows/operations-memory-client.yml"],"pathsIgnore":null,"branches":["main"],"branchesIgnore":null},"merge_group":{"present":false},"workflow_dispatch":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"schedule":{"present":false},"workflow_run":{"present":false}},"operations-memory-performance-client":{"pull_request":{"present":true,"paths":["packages/pandora-operations-memory/**","test/pandora-operations-memory-performance.test.js",".github/workflows/operations-memory-performance-client.yml"],"pathsIgnore":null,"branches":null,"branchesIgnore":null},"push":{"present":true,"paths":["packages/pandora-operations-memory/**","test/pandora-operations-memory-performance.test.js",".github/workflows/operations-memory-performance-client.yml"],"pathsIgnore":null,"branches":["main"],"branchesIgnore":null},"merge_group":{"present":false},"workflow_dispatch":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"schedule":{"present":false},"workflow_run":{"present":false}},"operations-room-rollout":{"pull_request":{"present":true,"paths":["scripts/operations-room-rollout/**","test/pandora-operations-rollout*.test.js","supabase/migrations/20260925101319_pandora_operations_room_runtime_v1.sql","supabase/functions/pandora-operations-runtime/**","packages/pandora-operations-room/provider-actions.js",".github/workflows/operations-room-rollout.yml"],"pathsIgnore":null,"branches":null,"branchesIgnore":null},"push":{"present":true,"paths":["scripts/operations-room-rollout/**","test/pandora-operations-rollout*.test.js",".github/workflows/operations-room-rollout.yml"],"pathsIgnore":null,"branches":["main"],"branchesIgnore":null},"merge_group":{"present":false},"workflow_dispatch":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"schedule":{"present":false},"workflow_run":{"present":false}},"operations-room-runtime":{"pull_request":{"present":true,"paths":["packages/pandora-operations-room/**","packages/pandora-verification/src/registry.js","supabase/functions/pandora-operations-runtime/**","supabase/migrations/*pandora_operations_room_runtime*","test/pandora-operations-room-runtime*.test.js",".github/workflows/operations-room-runtime.yml"],"pathsIgnore":null,"branches":null,"branchesIgnore":null},"push":{"present":true,"paths":["packages/pandora-operations-room/**","packages/pandora-verification/src/registry.js","supabase/functions/pandora-operations-runtime/**","supabase/migrations/*pandora_operations_room_runtime*","test/pandora-operations-room-runtime*.test.js",".github/workflows/operations-room-runtime.yml"],"pathsIgnore":null,"branches":["main"],"branchesIgnore":null},"merge_group":{"present":false},"workflow_dispatch":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"schedule":{"present":false},"workflow_run":{"present":false}},"operations-runtime-seams":{"pull_request":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"push":{"present":true,"paths":null,"pathsIgnore":null,"branches":["main","feat/operations-runtime-seams-20260926"],"branchesIgnore":null},"merge_group":{"present":false},"workflow_dispatch":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"schedule":{"present":false},"workflow_run":{"present":false}}}
+        run: |
+          python3 - <<'PY'
+          import fnmatch,json,os,subprocess
+          cfg=json.loads(os.environ["SCOPE_CONFIG"]); event=os.environ["EVENT_NAME"]; target=os.environ.get("TARGET","none")
+          head=os.environ["HEAD_SHA"]; before=os.environ.get("BEFORE_SHA",""); base=os.environ.get("BASE_SHA","")
+          branch=os.environ.get("BASE_BRANCH" if event=="pull_request" else "PUSH_BRANCH","")
+          def diff_files(*args):
+              r=subprocess.run(["git","diff","--name-only",*args],capture_output=True,text=True)
+              return set(x for x in r.stdout.splitlines() if x) if r.returncode==0 else set()
+          if event in ("pull_request","merge_group") and base: changed=diff_files(base,head)
+          elif event=="push" and before and set(before)!={"0"}: changed=diff_files(before,head)
+          elif event=="push":
+              r=subprocess.run(["git","diff-tree","--no-commit-id","--name-only","-r",head],capture_output=True,text=True);changed=set(r.stdout.splitlines())
+          else: changed=set()
+          def matches(value,patterns):
+              state=False
+              for p in patterns:
+                  if p.startswith("!"):
+                      if fnmatch.fnmatchcase(value,p[1:]):state=False
+                  elif fnmatch.fnmatchcase(value,p):state=True
+              return state
+          def scoped(name,s):
+              spec=s.get(event,{"present":False})
+              if event=="workflow_dispatch":return spec.get("present",False) and target not in ("none","") and (target=="all" or target==name)
+              if not spec.get("present"):return False
+              if event in ("pull_request","push","merge_group"):
+                  allow=spec.get("branches")
+                  if allow is not None and not any(fnmatch.fnmatchcase(branch,p) for p in allow if not p.startswith("!")):return False
+                  if allow is not None and any(p.startswith("!") and fnmatch.fnmatchcase(branch,p[1:]) for p in allow):return False
+                  if any(fnmatch.fnmatchcase(branch,p) for p in (spec.get("branchesIgnore") or [])):return False
+                  pats=spec.get("paths");ignored=spec.get("pathsIgnore")
+                  if pats is not None:return any(matches(f,pats) for f in changed)
+                  if ignored:return not any(matches(f,ignored) for f in changed)
+                  return True
+              return event in ("schedule","workflow_run")
+          values=[name.replace("-","_")+"="+("true" if scoped(name,s) else "false") for name,s in cfg.items()]
+          with open(os.environ["GITHUB_OUTPUT"],"a",encoding="utf-8") as f:f.write("\n".join(values)+"\n")
+          print("Changed paths:",len(changed));print("\n".join(values))
+          PY
+
+  ops_conn_connector-contract:
+    needs: detect_scopes
+    if: ${{ needs.detect_scopes.outputs.operations_connectors == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24.21.0'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Exact checkout identity
+        run: git rev-parse HEAD
+      - name: Connector behavior and native SQL contracts
+        run: node --test test/pandora-operations-connectors*.test.js
+      - name: Preserve existing Operations contracts
+        run: node --test test/pandora-operations-room-runtime*.test.js
+      - name: Discover pinned Supabase migration command
+        run: |
+          npx --yes supabase@2.116.0 --help
+          npx --yes supabase@2.116.0 migration new --help
+      - name: Generate isolated migration identity without database changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOURCE_ROOT="$PWD"
+          DEST="$(mktemp -d)"
+          mkdir -p "$DEST/supabase/migrations"
+          cd "$DEST"
+          npx --yes supabase@2.116.0 migration new operations_connector_delivery_v1
+          GENERATED="$(find supabase/migrations -maxdepth 1 -type f -name '*_operations_connector_delivery_v1.sql')"
+          test -n "$GENERATED"
+          cp "$SOURCE_ROOT/packages/pandora-operations-connectors/delivery-schema.sql" "$GENERATED"
+          printf 'CLI_MIGRATION_FILENAME=%s\n' "$(basename "$GENERATED")"
+          sha256sum "$GENERATED"
+
+
+  ops_inference_inference-contract:
+    needs: detect_scopes
+    if: ${{ needs.detect_scopes.outputs.operations_inference_theatre == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24.21.0'
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Exact source
+        run: git rev-parse HEAD
+      - name: Generate native migration identity with pinned CLI
+        run: |
+          npx --yes supabase@2.116.0 --help >/dev/null
+          npx --yes supabase@2.116.0 migration new --help >/dev/null
+          SOURCE="$PWD/packages/pandora-operations-inference/schema.sql"
+          DEST=$(mktemp -d)
+          mkdir -p "$DEST/supabase/migrations"
+          cd "$DEST"
+          npx --yes supabase@2.116.0 migration new operations_inference_service_v1
+          GENERATED=$(find supabase/migrations -name '*_operations_inference_service_v1.sql' -type f)
+          test -n "$GENERATED"
+          cp "$SOURCE" "$GENERATED"
+          printf 'CLI_MIGRATION_FILENAME=%s\n' "$(basename "$GENERATED")"
+          sha256sum "$GENERATED"
+      - name: Frozen Deno entrypoint check
+        run: npx --yes deno-bin@2.2.7 check --quiet --node-modules-dir=none --frozen supabase/functions/pandora-intelligence-router/index.ts
+      - name: Execute Deno runtime boundary smoke
+        run: npx --yes deno-bin@2.2.7 test --quiet --node-modules-dir=none --frozen packages/pandora-operations-inference/test/deno-runtime.mjs
+      - name: Inference and current-event contracts
+        run: node --test test/pandora-operations-inference*.test.js
+      - name: Existing Operations and Memory contracts
+        run: node --test test/pandora-operations-room-runtime*.test.js test/pandora-operations-memory*.test.js
+
+
+  ops_inference_postgres-inference-races:
+    needs: detect_scopes
+    if: ${{ needs.detect_scopes.outputs.operations_inference_theatre == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: fixture_only_password
+          POSTGRES_DB: pandora_inference_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGDATABASE: pandora_inference_ci
+      PGUSER: postgres
+      PGPASSWORD: fixture_only_password
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24.21.0'
+      - name: Execute independent PostgreSQL sessions
+        run: node --test packages/pandora-operations-inference/test/postgres-races.mjs
+
+
+  ops_memclient_bounded-client:
+    needs: detect_scopes
+    if: ${{ needs.detect_scopes.outputs.operations_memory_client == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24.21.0'
+      - name: Install locked test dependencies
+        run: npm ci --ignore-scripts
+      - run: node --check packages/pandora-operations-memory/contracts.mjs
+      - run: node --check packages/pandora-operations-memory/native-client.mjs
+      - run: node --test test/pandora-operations-memory*.test.js
+
+
+  ops_memperf_exact-memory-performance-contract:
+    needs: detect_scopes
+    if: ${{ needs.detect_scopes.outputs.operations_memory_performance_client == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24.21.0'
+      - name: Install existing locked dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Fetch and verify exact canonical Memory SQL test inputs
+        env:
+          SQL_OUTPUT: ${{ runner.temp }}/ops-performance-contract.sql
+        run: |
+          python3 - <<'PY'
+          import hashlib, os, pathlib, urllib.request
+          commit = '2a35b71a0da910d9da99bde9b19eb2c5e88e9ba1'
+          base = 'https://raw.githubusercontent.com/pandora-rvw-314296438-20260820/pandoras-box-memory/' + commit + '/'
+          files = [
+            ('tests/operations-performance/fixture.sql','5bb66048a10342ab76bd37a18c40ddf788373e24590c32d4cd11549cb444cf73'),
+            ('supabase/migrations/20260925193725_pandora_operations_performance_read_v1.sql','f28a2511da754f3979c30c88aabc8fa1f84f127f69163e19e8f3d483a521095f'),
+            ('tests/operations-performance/behavior.sql','10752e5a3b70ce67cbe04de81b3be6e1a93bf37dac619d64d58b424a63d0d2a1'),
+          ]
+          contents = []
+          for path, expected in files:
+              with urllib.request.urlopen(base + path, timeout=20) as response:
+                  raw = response.read(131073)
+              assert len(raw) <= 131072 and hashlib.sha256(raw).hexdigest() == expected, path
+              contents.append(raw)
+          pathlib.Path(os.environ['SQL_OUTPUT']).write_bytes(b'\n'.join(contents))
+          print('Exact Memory commit and all three SHA-256 digests verified')
+          PY
+      - name: Client and native SQL boundary
+        env:
+          PANDORA_PERFORMANCE_SQL: ${{ runner.temp }}/ops-performance-contract.sql
+        run: node --test test/pandora-operations-memory-performance.test.js
+
+
+  ops_rollout_paused-foundation-contract:
+    needs: detect_scopes
+    if: ${{ needs.detect_scopes.outputs.operations_room_rollout == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24.21.0'
+          cache: npm
+      - name: Install locked dependencies without lifecycle scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Exact-source staging boundary and actual PostgreSQL catalogue tests
+        run: node --test test/pandora-operations-rollout*.test.js
+      - name: Keep existing scheduler contracts intact
+        run: node --test test/pandora-operations-room-runtime*.test.js
+
+
+  ops_runtime_contracts-and-postgres-races:
+    needs: detect_scopes
+    if: ${{ needs.detect_scopes.outputs.operations_room_runtime == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17.6
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: pandora_ops_ci
+          # Disposable test-container password, not a provider or production secret.
+          POSTGRES_PASSWORD: pandora_ops_ci_only
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGDATABASE: pandora_ops_ci
+      PGUSER: postgres
+      PGPASSWORD: pandora_ops_ci_only
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24.21.0'
+          cache: npm
+      - name: Install locked dependencies without lifecycle scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Focused contracts, owner API and SQL state machine
+        run: node --test test/pandora-operations-room-runtime*.test.js
+      - name: Check new Edge entrypoint
+        run: npx --yes deno-bin@2.2.7 check --node-modules-dir=none --frozen supabase/functions/pandora-operations-runtime/index.ts
+      - name: Ensure PostgreSQL client
+        run: |
+          if ! command -v psql; then
+            sudo apt-get update
+            sudo apt-get install --yes postgresql-client
+          fi
+          psql --version
+      - name: Independent PostgreSQL sessions exercise real claim and dispatch races
+        run: node --test packages/pandora-operations-room/test/postgres-races.mjs
+
+
+  ops_seams_runtime-seams:
+    env:
+      EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+    needs: detect_scopes
+    if: ${{ needs.detect_scopes.outputs.operations_runtime_seams == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ env.EXPECTED_HEAD }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Execute exact-source Memory/Router transport boundaries
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          node --test test/pandora-operations-workload-memory.test.js test/pandora-operations-owner-theatre.test.js
+          node scripts/materialize-control-tower.mjs
+          node scripts/verify-frontend-mirrors.mjs
+      - name: Install locked dependencies and verify API types
+        run: |
+          npm ci --ignore-scripts
+          npx tsc -p tsconfig.vercel.json
+
+
+  ops_seams_mobile-events:
+    env:
+      EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+    needs: detect_scopes
+    if: ${{ needs.detect_scopes.outputs.operations_runtime_seams == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ env.EXPECTED_HEAD }}
+          persist-credentials: false
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: '3.47.0'
+          cache: true
+      - name: Execute exact mobile event protocol, HTTP, lifecycle and widget tests
+        working-directory: apps/pandora-mobile
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          flutter pub get --enforce-lockfile
+          flutter test test/features/operations/operations_execution_feed_test.dart test/features/operations/operations_room_test.dart --reporter expanded
+          dart analyze lib/core/data/pandora_operations_events.dart lib/features/operations/operations_execution_feed.dart
+
