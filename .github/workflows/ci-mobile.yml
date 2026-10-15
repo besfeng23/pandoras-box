@@ -458,7 +458,7 @@ jobs:
           test -x "$apksigner"
           "$aapt" dump badging "$apk" > "$evidence/badging.txt"
           "$aapt" dump permissions "$apk" > "$evidence/permissions.txt"
-          "$apksigner" mob_integration_verify --verbose --print-certs "$apk" > "$evidence/signing.txt"
+          "${apksigner}" verify --verbose --print-certs "$apk" > "$evidence/signing.txt"
           grep -Fq "package: name='com.banataosystems.pandora_mobile'" \
             "$evidence/badging.txt"
           expected_version_name="${EXPECTED_APP_VERSION%%+*}"
