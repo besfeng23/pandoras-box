@@ -72,7 +72,7 @@ jobs:
           SOURCE_SHA_INPUT: ${{ github.event.inputs.source_sha || '' }}
           MOBILE_RUN_ID_INPUT: ${{ github.event.inputs.mobile_run_id || '' }}
           SCOPE_CONFIG: |
-            {"pandora-mobile-integration":{"pull_request":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"push":{"present":true,"paths":null,"pathsIgnore":null,"branches":["main"],"branchesIgnore":null},"merge_group":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"workflow_dispatch":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"schedule":{"present":false},"workflow_run":{"present":false}},"pandora-mobile-release":{"pull_request":{"present":false},"push":{"present":false},"merge_group":{"present":false},"workflow_dispatch":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"schedule":{"present":false},"workflow_run":{"present":false}},"pandora-mobile-direct-macos-fallback":{"pull_request":{"present":false},"push":{"present":false},"merge_group":{"present":false},"workflow_dispatch":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"schedule":{"present":false},"workflow_run":{"present":false}},"pandora-mobile-direct-macos-intel-fallback":{"pull_request":{"present":false},"push":{"present":false},"merge_group":{"present":false},"workflow_dispatch":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"schedule":{"present":false},"workflow_run":{"present":false}},"eurofish-pandora-enterprise-android":{"pull_request":{"present":true,"paths":["apps/pandora-mobile/**","workers/pandora-ares/**",".github/workflows/eurofish-pandora-enterprise-android.yml"],"pathsIgnore":null,"branches":null,"branchesIgnore":null},"push":{"present":true,"paths":["apps/pandora-mobile/**","workers/pandora-ares/**",".github/workflows/eurofish-pandora-enterprise-android.yml"],"pathsIgnore":null,"branches":["enterprise-ui-business-1"],"branchesIgnore":null},"merge_group":{"present":false},"workflow_dispatch":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"schedule":{"present":false},"workflow_run":{"present":false}},"plp-pandora-enterprise-android":{"pull_request":{"present":true,"paths":["apps/pandora-mobile/**","supabase/migrations/**",".github/workflows/plp-pandora-enterprise-android.yml"],"pathsIgnore":null,"branches":null,"branchesIgnore":null},"push":{"present":false},"merge_group":{"present":false},"workflow_dispatch":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"schedule":{"present":false},"workflow_run":{"present":false}}}
+            {"pandora-mobile-integration":{"pull_request":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"push":{"present":true,"paths":null,"pathsIgnore":null,"branches":["main"],"branchesIgnore":null},"merge_group":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"workflow_dispatch":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"schedule":{"present":false},"workflow_run":{"present":false}},"pandora-mobile-release":{"pull_request":{"present":false},"push":{"present":false},"merge_group":{"present":false},"workflow_dispatch":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"schedule":{"present":false},"workflow_run":{"present":false}},"pandora-mobile-direct-macos-fallback":{"pull_request":{"present":false},"push":{"present":false},"merge_group":{"present":false},"workflow_dispatch":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"schedule":{"present":false},"workflow_run":{"present":false}},"pandora-mobile-direct-macos-intel-fallback":{"pull_request":{"present":false},"push":{"present":false},"merge_group":{"present":false},"workflow_dispatch":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"schedule":{"present":false},"workflow_run":{"present":false}},"eurofish-pandora-enterprise-android":{"pull_request":{"present":true,"paths":["apps/pandora-mobile/**","workers/pandora-ares/**",".github/workflows/ci-mobile.yml"],"pathsIgnore":null,"branches":null,"branchesIgnore":null},"push":{"present":true,"paths":["apps/pandora-mobile/**","workers/pandora-ares/**",".github/workflows/ci-mobile.yml"],"pathsIgnore":null,"branches":["enterprise-ui-business-1"],"branchesIgnore":null},"merge_group":{"present":false},"workflow_dispatch":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"schedule":{"present":false},"workflow_run":{"present":false}},"plp-pandora-enterprise-android":{"pull_request":{"present":true,"paths":["apps/pandora-mobile/**","supabase/migrations/**",".github/workflows/ci-mobile.yml"],"pathsIgnore":null,"branches":null,"branchesIgnore":null},"push":{"present":false},"merge_group":{"present":false},"workflow_dispatch":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"schedule":{"present":false},"workflow_run":{"present":false}}}
         run: |
           python3 - <<'PY'
           import fnmatch,json,os,subprocess
@@ -189,21 +189,17 @@ jobs:
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
           test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
 
-      - name: Guard the single read-only mobile lane
+      - name: Guard the read-only lane and scoped release publisher
         shell: bash
         run: |
           set -euo pipefail
           test ! -e .github/workflows/pandora-mobile-diagnostic-apk.yml
           test ! -e .github/workflows/pandora-mobile-exact-head-gate.yml
           test ! -e .github/workflows/pandora-mobile-format-context-once.yml
-          grep -Fq '  contents: read' \
-            .github/workflows/pandora-mobile-integration.yml
-          ! grep -Eq \
-            'contents:[[:space:]]+write|statuses:[[:space:]]+write|git[[:space:]]+push|gh[[:space:]]+release' \
-            .github/workflows/pandora-mobile-integration.yml
-          grep -Fq \
-            'cp -R ../apps/pandora-mobile/platform ./platform' \
-            .github/workflows/pandora-mobile-integration.yml
+          grep -Fq '  contents: read' .github/workflows/ci-mobile.yml
+          ! grep -Eq 'statuses:[[:space:]]+write|git[[:space:]]+push' .github/workflows/ci-mobile.yml
+          awk '/^  mob_release_publish:/{injob=1; next} /^  [A-Za-z0-9_-]+:/{if(injob)exit} injob{print}' .github/workflows/ci-mobile.yml | grep -Fq 'contents: write'
+          grep -Fq 'cp -R ../apps/pandora-mobile/platform ./platform' .github/workflows/ci-mobile.yml
 
       - name: Verify the canonical Pandora spiral identity
         shell: bash
@@ -225,7 +221,7 @@ jobs:
         run: >-
           bash apps/pandora-mobile/tool/check_private_key_literals.sh
           apps/pandora-mobile
-          .github/workflows/pandora-mobile-integration.yml
+          .github/workflows/ci-mobile.yml
 
       - name: Test the bounded Android manifest tool
         run: >-
@@ -650,7 +646,7 @@ jobs:
           node --test test/mobile-preview-platform-hosts.test.js
           bash apps/pandora-mobile/tool/check_private_key_literals.sh \
             apps/pandora-mobile \
-            .github/workflows/pandora-mobile-integration.yml
+            .github/workflows/ci-mobile.yml
           python3 -m unittest discover \
             -s apps/pandora-mobile/tool \
             -p 'test_*.py'
@@ -851,7 +847,7 @@ jobs:
           test "$(jq -r '.head_branch' <<<"$run_json")" = 'main'
           test "$(jq -r '.event' <<<"$run_json")" = 'push'
           test "$(jq -r '.conclusion' <<<"$run_json")" = 'success'
-          test "$(jq -r '.path' <<<"$run_json")" = '.github/workflows/pandora-mobile-integration.yml'
+          test "$(jq -r '.path' <<<"$run_json")" = '.github/workflows/ci-mobile.yml'
 
       - name: Resolve and download the exact Android validation artifact
         id: artifact
@@ -1367,7 +1363,7 @@ jobs:
         run: >-
           bash apps/pandora-mobile/tool/check_private_key_literals.sh
           apps/pandora-mobile
-          .github/workflows/eurofish-pandora-enterprise-android.yml
+          .github/workflows/ci-mobile.yml
 
       - name: Install pinned JDK
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
@@ -1661,7 +1657,7 @@ jobs:
         run: >-
           bash apps/pandora-mobile/tool/check_private_key_literals.sh
           apps/pandora-mobile
-          .github/workflows/plp-pandora-enterprise-android.yml
+          .github/workflows/ci-mobile.yml
 
       - name: Install pinned JDK
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
