@@ -431,7 +431,6 @@ test("all repository-owned required checks test the synthetic integration SHA", 
     ".github/workflows/ci-platform.yml",
     ".github/workflows/canonical-release-evidence.yml",
     ".github/workflows/ci-governance.yml",
-    ".github/workflows/ci-platform.yml",
     ".github/workflows/ci-mobile.yml",
   ];
   for (const relativePath of workflowPaths) {
