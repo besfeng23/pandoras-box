@@ -905,7 +905,7 @@ test('GitHub provider readback binds the physical APK receipt to one exact mobil
         head_commit: { id: MAIN_SHA, tree_id: TREE_SHA },
         status: 'completed',
         conclusion: 'success',
-        path: '.github/workflows/pandora-mobile-integration.yml@main',
+        path: '.github/workflows/ci-mobile.yml@main',
         workflow_id: 7002,
         check_suite_id: 8002,
         run_attempt: 3,
