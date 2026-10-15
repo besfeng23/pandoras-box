@@ -242,8 +242,8 @@ jobs:
         run: |
           set -euo pipefail
           flutter pub get --enforce-lockfile
-          flutter analyze --no-pub lib/features/enterprise/plp/local_ai/plp_chat_fallback.dart test/features/enterprise/plp/local_ai/plp_missing_data_test.dart
-          flutter test --no-pub test/features/enterprise/plp/local_ai/plp_chat_fallback_test.dart test/features/enterprise/plp/local_ai/plp_missing_data_test.dart
+          flutter analyze --no-pub lib/features/enterprise/plp/local_ai/plp_chat_fallback.dart test/features/enterprise/plp/local_ai/plp_missing_data_test.dart lib/features/enterprise/eurofish/data/eurofish_workspace_api.dart test/features/enterprise/eurofish/data/eurofish_workspace_api_test.dart
+          flutter test --no-pub test/features/enterprise/plp/local_ai/plp_chat_fallback_test.dart test/features/enterprise/plp/local_ai/plp_missing_data_test.dart test/features/enterprise/eurofish/data/eurofish_workspace_api_test.dart
 
 
   gov_retention_prune:

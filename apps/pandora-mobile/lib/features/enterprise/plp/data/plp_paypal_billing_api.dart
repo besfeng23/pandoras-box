@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../pandora_config.dart';
+import '../../../../pandora_config.dart';
 
 /// Owner API transport for PLP PayPal billing. Injectable so widget tests and
 /// render harnesses can supply a fake.
