@@ -13,7 +13,7 @@ const webFacade = readFileSync(join(platform, 'pandora_web_preview.dart'), 'utf8
 const web = readFileSync(join(platform, 'pandora_web_preview_web.dart'), 'utf8');
 const swift = readFileSync(join(mobile, 'platform', 'ios', 'Runner', 'PandoraExactPreviewView.swift'), 'utf8');
 const appDelegate = readFileSync(join(mobile, 'platform', 'ios', 'Runner', 'AppDelegate.swift'), 'utf8');
-const workflow = readFileSync(join(root, '.github', 'workflows', 'pandora-mobile-integration.yml'), 'utf8');
+const workflow = readFileSync(join(root, '.github', 'workflows', 'ci-mobile.yml'), 'utf8');
 
 const forbiddenBridge = /WKScriptMessageHandler|addJavascriptInterface|javaScriptChannel|allow-same-origin/;
 

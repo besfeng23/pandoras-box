@@ -1,6 +1,6 @@
 "use strict";
 const fs=require("node:fs"),test=require("node:test"),assert=require("node:assert/strict");
-const workflow=fs.readFileSync(".github/workflows/pandora-ux-regression.yml","utf8");
+const workflow=fs.readFileSync(".github/workflows/ci-platform.yml","utf8");
 const taps=fs.readFileSync("apps/pandora-mobile/test/features/simple/pandora_picker_tap_through_test.dart","utf8");
 const laneH=fs.readFileSync("apps/pandora-mobile/test/goldens/lane_h_chat_picker_visual_evidence_test.dart","utf8");
 

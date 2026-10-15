@@ -56,11 +56,11 @@ const REPOSITORY_CHECK_IDENTITIES = Object.freeze(
   REQUIRED_CHECK_IDENTITIES.filter((name) => name !== TRUSTED_EXTERNAL_REVIEW_IDENTITY),
 );
 const REQUIRED_CHECK_WORKFLOW_PATHS = Object.freeze({
-  node24: ".github/workflows/projectos-security.yml",
+  node24: ".github/workflows/ci-platform.yml",
   "canonical-release-source-contract": ".github/workflows/canonical-release-evidence.yml",
-  "Windows worker contract": ".github/workflows/windows-worker-contract.yml",
-  "Exact source / Flutter / Android": ".github/workflows/pandora-mobile-integration.yml",
-  "Exact source / Flutter / iOS": ".github/workflows/pandora-mobile-integration.yml",
+  "Windows worker contract": ".github/workflows/ci-platform.yml",
+  "Exact source / Flutter / Android": ".github/workflows/ci-mobile.yml",
+  "Exact source / Flutter / iOS": ".github/workflows/ci-mobile.yml",
 });
 const AUTHORITY_POLICY_PATH = require.resolve("../../SOURCE_AUTHORITY_POLICY.json");
 const HISTORICAL_SURFACES_PATH = require.resolve("../../docs/status/HISTORICAL_STATUS_SURFACES.json");
@@ -501,7 +501,7 @@ async function readMobileArtifactProviderReadback({
       || run?.head_commit?.tree_id !== mainTreeSha
       || run?.status !== "completed"
       || run?.conclusion !== "success"
-      || !exactMainWorkflowPath(run?.path, ".github/workflows/pandora-mobile-integration.yml")
+      || !exactMainWorkflowPath(run?.path, ".github/workflows/ci-mobile.yml")
       || !Number.isSafeInteger(run?.workflow_id)
       || run.workflow_id <= 0
       || !Number.isSafeInteger(run?.check_suite_id)
@@ -570,7 +570,7 @@ async function readMobileArtifactProviderReadback({
       runAttempt,
       runCompletedAt: run.updated_at,
       workflowId: run.workflow_id,
-      workflowPath: ".github/workflows/pandora-mobile-integration.yml",
+      workflowPath: ".github/workflows/ci-mobile.yml",
       workflowRunPath: run.path,
       event: run.event,
       jobId: job.id,

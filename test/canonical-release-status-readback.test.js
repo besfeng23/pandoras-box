@@ -26,7 +26,7 @@ const rollback = readFileSync(join(
 ), "utf8");
 const mobileWorkflow = readFileSync(join(
   root,
-  ".github/workflows/pandora-mobile-integration.yml",
+  ".github/workflows/ci-mobile.yml",
 ), "utf8");
 
 test("canonical release readback is service-role-only and source-bound", () => {

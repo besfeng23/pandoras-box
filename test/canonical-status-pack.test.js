@@ -110,7 +110,7 @@ function evidence() {
         runAttempt: 1,
         runCompletedAt: '2026-08-23T13:34:00.000Z',
         workflowId: 7002,
-        workflowPath: '.github/workflows/pandora-mobile-integration.yml',
+        workflowPath: '.github/workflows/ci-mobile.yml',
         event: 'push',
         jobId: 6002,
         checkRunId: 5002,

@@ -428,11 +428,11 @@ test("the inspector bounds complete pagination", async () => {
 
 test("all repository-owned required checks test the synthetic integration SHA", () => {
   const workflowPaths = [
-    ".github/workflows/pandora-node24.yml",
+    ".github/workflows/ci-platform.yml",
     ".github/workflows/canonical-release-evidence.yml",
-    ".github/workflows/dependency-review.yml",
-    ".github/workflows/windows-worker-contract.yml",
-    ".github/workflows/pandora-mobile-integration.yml",
+    ".github/workflows/ci-governance.yml",
+    ".github/workflows/ci-platform.yml",
+    ".github/workflows/ci-mobile.yml",
   ];
   for (const relativePath of workflowPaths) {
     const source = readFileSync(join(root, relativePath), "utf8");
