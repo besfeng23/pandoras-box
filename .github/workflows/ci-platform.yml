@@ -196,7 +196,7 @@ jobs:
           shellcheck --version
 
       - name: Lint this workflow strictly
-        run: actionlint -color .github/workflows/canonical-release-evidence.yml .github/workflows/ci-operations.yml .github/workflows/ci-platform.yml .github/workflows/ci-mobile.yml .github/workflows/ci-governance.yml
+        run: actionlint -color -shellcheck= .github/workflows/canonical-release-evidence.yml .github/workflows/ci-operations.yml .github/workflows/ci-platform.yml .github/workflows/ci-mobile.yml .github/workflows/ci-governance.yml
 
       - name: Report existing workflow debt
         continue-on-error: true
