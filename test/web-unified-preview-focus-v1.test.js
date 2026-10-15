@@ -8,8 +8,8 @@ const read = (...parts) => fs.readFileSync(path.join(root, ...parts), 'utf8');
 
 const app = read('apps', 'control-tower', 'owner-app.js');
 const workspace = read('apps', 'control-tower', 'owner-project-workspace.js');
-const operator = read('apps', 'meta-business-mcp', 'src', 'operator', 'api.js');
-const broker = read('apps', 'meta-business-mcp', 'src', 'operator', 'preview-focus.js');
+const operator = read('src', 'operator', 'api.js');
+const broker = read('src', 'operator', 'preview-focus.js');
 const edge = read('supabase', 'functions', 'pandora-preview-content', 'index.ts');
 
 test('Vercel focus materialization is exact-version and verified-provider only', () => {

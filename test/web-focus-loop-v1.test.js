@@ -9,8 +9,8 @@ const read = (...parts) => fs.readFileSync(path.join(root, ...parts), 'utf8');
 const app = read('apps', 'control-tower', 'owner-app.js');
 const workspace = read('apps', 'control-tower', 'owner-project-workspace.js');
 const preview = read('api', 'preview.ts');
-const operator = read('apps', 'meta-business-mcp', 'src', 'operator', 'api.js');
-const change = read('apps', 'meta-business-mcp', 'src', 'operator', 'project-change.js');
+const operator = read('src', 'operator', 'api.js');
+const change = read('src', 'operator', 'project-change.js');
 
 test('web focus loop keeps the exact preview as the result hero', () => {
   assert.match(workspace, /data-project-preview-frame/);
