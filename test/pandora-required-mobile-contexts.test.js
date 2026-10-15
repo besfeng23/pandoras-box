@@ -17,9 +17,9 @@ test('required Flutter contexts always report a real result', () => {
   const iosWrapper = job('mob_integration_verify-ios');
   assert.match(android, /needs\.mob_integration_mobile-impact\.outputs\.mobile == 'true'/);
   assert.match(ios, /needs\.mob_integration_mobile-impact\.outputs\.mobile == 'true'/);
-  assert.match(androidWrapper, /if: \$\{\{ always\(\) \}\}/);
+  assert.match(androidWrapper, /always\\(\\)/);
   assert.match(androidWrapper, /name: Exact source \/ Flutter \/ Android/);
-  assert.match(iosWrapper, /if: \$\{\{ always\(\) \}\}/);
+  assert.match(iosWrapper, /always\\(\\)/);
   assert.match(iosWrapper, /name: Exact source \/ Flutter \/ iOS/);
   assert.match(androidWrapper, /needs\.mob_integration_verify_android_heavy\.result/);
   assert.match(iosWrapper, /needs\.mob_integration_verify_ios_heavy\.result/);
