@@ -45,12 +45,15 @@ test("The real CLI-generated migration is byte-identical to tested delivery SQL"
   assert.equal(createHash("sha256").update(migration).digest("hex"), "6ff1ee8767f518f15c5066f4f51d8f2ade0c2e23caf2376fbde33d2437a40f26");
 });
 
-test("Connector CI watches native dependencies and its own workflow on PR and main", () => {
-  const workflow = fs.readFileSync(path.join(__dirname, "../.github/workflows/operations-connectors.yml"), "utf8");
-  const pull = workflow.split("  pull_request:\n")[1].split("  push:\n")[0];
-  const push = workflow.split("  push:\n")[1].split("  workflow_dispatch:")[0];
-  for (const section of [pull, push]) {
-    for (const dependency of ["packages/pandora-operations-room/**", "packages/pandora-verification/**", "supabase/migrations/**", "api/operations-native-worker.ts", "supabase/functions/mcpmaster-supabase-control/**", "package-lock.json", ".github/workflows/operations-connectors.yml"])
-      assert.ok(section.includes(`'${dependency}'`), `Missing dependency filter ${dependency}`);
+test("Connector CI preserves native dependency scopes in the canonical Operations workflow", () => {
+  const workflow = fs.readFileSync(path.join(__dirname, "../.github/workflows/ci-operations.yml"), "utf8");
+  const match = workflow.match(/SCOPE_CONFIG:\\s*\\|\\s*\\r?\\n\\s+(\\{[^\\r\\n]+\\})/);
+  assert.ok(match, "canonical Operations scope configuration must exist");
+  const config = JSON.parse(match[1]);
+  for (const event of ["pull_request", "push"]) {
+    const paths = config["operations-connectors"]?.[event]?.paths ?? [];
+    for (const dependency of ["packages/pandora-operations-room/**", "packages/pandora-verification/**", "supabase/migrations/**", "api/operations-native-worker.ts", "supabase/functions/mcpmaster-supabase-control/**", "package-lock.json", ".github/workflows/ci-operations.yml"]) {
+      assert.ok(paths.includes(dependency), `Missing ${event} dependency filter ${dependency}`);
+    }
   }
 });
