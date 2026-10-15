@@ -41,7 +41,7 @@ record `approve` or `reject`; they do not directly execute protected work.
 
 ## Verification build
 
-`.github/workflows/pandora-mobile-integration.yml` is the single mobile gate. It
+`.github/workflows/ci-mobile.yml` is the single mobile gate. It
 has read-only repository permission, checks out the exact candidate SHA, uses
 pinned Flutter 3.47.0, enforces the lockfile, formats, analyzes, runs all tests
 and committed golden comparisons, builds Web and a debug-signed Android APK,

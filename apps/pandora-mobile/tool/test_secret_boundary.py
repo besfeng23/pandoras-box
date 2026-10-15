@@ -65,7 +65,7 @@ class SecretBoundaryScannerTest(unittest.TestCase):
             repo_root / "apps" / "pandora-mobile" / "platform",
             repo_root / "apps" / "pandora-mobile" / "pubspec.yaml",
             repo_root / "apps" / "pandora-mobile" / "pubspec.lock",
-            repo_root / ".github" / "workflows" / "pandora-mobile-integration.yml",
+            repo_root / ".github" / "workflows" / "ci-mobile.yml",
         ]
         self.assertTrue(all(path.exists() for path in targets))
         self.assertEqual(scanner.scan_source_targets(targets), [])

@@ -2,7 +2,7 @@
 
 Pandora Mobile does not commit a full Flutter Android project. The platform
 directory is materialized disposably by `flutter create` in
-`.github/workflows/pandora-mobile-integration.yml`, which means anything the
+`.github/workflows/ci-mobile.yml`, which means anything the
 generated template decides is what ships unless it is deliberately overridden.
 
 The generated template is not acceptable for this product:
