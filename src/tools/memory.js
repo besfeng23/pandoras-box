@@ -144,7 +144,7 @@ class PandoraMemoryMCPServer {
         this.fetchFn = fetchFn;
     }
     async health() {
-        const raw = (0, memory_response_1.sanitizeMemoryHealthResponse)(await this.request('/api/projectos/health', 'GET'));
+        const raw = (0, memory_response_1.sanitizeMemoryHealthResponse)(await this.request('/api/pandora/health', 'GET'));
         return {
             ok: raw.ok,
             project: raw.project,
@@ -157,7 +157,7 @@ class PandoraMemoryMCPServer {
         if (!this.config.allowedNamespaces.includes(input.namespace)) {
             throw new PandoraMemoryError(`Pandora Memory namespace is not allowed: ${input.namespace}`, 403);
         }
-        return (0, memory_response_1.sanitizeMemorySearchResponse)(await this.request('/api/projectos/memory/search', 'POST', {
+        return (0, memory_response_1.sanitizeMemorySearchResponse)(await this.request('/api/pandora/memory/search', 'POST', {
             namespace: input.namespace,
             project_key: input.projectKey,
             query: input.query,
