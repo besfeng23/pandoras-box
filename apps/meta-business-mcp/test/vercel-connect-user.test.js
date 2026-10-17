@@ -4,7 +4,7 @@ const test = require("node:test");
 const {
   VercelConnectUserBroker,
   VercelConnectUserError,
-} = require("../dist/operator/vercel-connect-user.js");
+} = require("../../../src/operator/vercel-connect-user.js");
 
 const USER_ID = "e5f5744e-554b-4f92-aad2-3f58ae6a33ad";
 const PLATFORM_TOKEN = "trusted-platform-workload-token-".padEnd(96, "t");

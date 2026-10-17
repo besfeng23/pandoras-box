@@ -2,8 +2,8 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 const express = require('express');
 
-const { createOperatorApiApp } = require('../dist/operator/api.js');
-const { normalizeFocusToken, focusIntentContext } = require('../dist/operator/project-change.js');
+const { createOperatorApiApp } = require('../../../src/operator/api.js');
+const { normalizeFocusToken, focusIntentContext } = require('../../../src/operator/project-change.js');
 
 const USER_ID = 'e5f5744e-554b-4f92-aad2-3f58ae6a33ad';
 const ORGANIZATION_ID = '2270b266-59da-4c39-bfd9-9f8d08352af0';
