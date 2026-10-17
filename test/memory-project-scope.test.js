@@ -192,7 +192,7 @@ test("canonical Memory health probe forwards the exact project key", async () =>
     { VERCEL_OIDC_TOKEN: "o".repeat(64) },
     async (url, init = {}) => {
       const pathname = new URL(url).pathname;
-      if (pathname === "/api/projectos/health") {
+      if (pathname === "/api/pandora/health") {
         return jsonResponse({
           ok: true,
           project: "pandora-memory-engine",
@@ -202,7 +202,7 @@ test("canonical Memory health probe forwards the exact project key", async () =>
           post_task_learning: "review_gated",
         });
       }
-      if (pathname === "/api/projectos/memory/search") {
+      if (pathname === "/api/pandora/memory/search") {
         searchBody = JSON.parse(init.body);
         return jsonResponse(memoryPayload());
       }
