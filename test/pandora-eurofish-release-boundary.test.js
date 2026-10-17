@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 
 const shell = fs.readFileSync('apps/pandora-mobile/lib/app/eurofish_enterprise_shell.dart','utf8');
-const workflow = fs.readFileSync('.github/workflows/eurofish-pandora-enterprise-android.yml','utf8');
+const workflow = fs.readFileSync('.github/workflows/ci-mobile.yml','utf8');
 
 test('Euro-Fish chat history is workspace scoped', () => {
   assert.match(shell,/recentThreadsForWorkspace\(\s*_workspaceKey,\s*limit:\s*10,/s);

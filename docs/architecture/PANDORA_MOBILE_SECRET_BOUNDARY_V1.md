@@ -35,13 +35,13 @@ The mobile secret-boundary scanner fails closed on operational mobile source or 
 
 Findings disclose only rule, location, line, and a short SHA-256 fingerprint. The scanner never prints matched credential material.
 
-The canonical `pandora-mobile-integration.yml` already runs every Python `test_*.py` under `apps/pandora-mobile/tool` before Flutter analysis/tests/build. `test_secret_boundary.py` therefore makes the scan an exact-source build gate and scans:
+The canonical `ci-mobile.yml` already runs every Python `test_*.py` under `apps/pandora-mobile/tool` before Flutter analysis/tests/build. `test_secret_boundary.py` therefore makes the scan an exact-source build gate and scans:
 
 - `apps/pandora-mobile/lib`
 - `apps/pandora-mobile/platform`
 - `apps/pandora-mobile/pubspec.yaml`
 - `apps/pandora-mobile/pubspec.lock`
-- `.github/workflows/pandora-mobile-integration.yml`
+- `.github/workflows/ci-mobile.yml`
 
 The pre-existing private-key literal gate remains independent defense in depth.
 

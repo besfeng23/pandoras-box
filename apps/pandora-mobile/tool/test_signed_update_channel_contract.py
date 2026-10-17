@@ -22,7 +22,7 @@ _ANDROID = (
 _UPDATE = _ANDROID / "PandoraSignedUpdateChannel.kt"
 _CHANNEL = _ANDROID / "PandoraDeviceAgentChannel.kt"
 _DART = _ROOT / "lib" / "core" / "device" / "pandora_signed_update_channel.dart"
-_WORKFLOW = _ROOT.parents[1] / ".github" / "workflows" / "pandora-mobile-integration.yml"
+_WORKFLOW = _ROOT.parents[1] / ".github" / "workflows" / "ci-mobile.yml"
 
 
 class SignedUpdateChannelContractTest(unittest.TestCase):

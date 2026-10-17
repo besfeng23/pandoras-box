@@ -15,7 +15,7 @@ const ask = fs.readFileSync(
   'utf8',
 );
 const release = fs.readFileSync(
-  '.github/workflows/pandora-mobile-release.yml',
+  '.github/workflows/ci-mobile.yml',
   'utf8',
 );
 const physical = fs.readFileSync(

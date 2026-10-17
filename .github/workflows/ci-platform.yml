@@ -1,0 +1,675 @@
+name: Pandora CI Platform
+
+on:
+  pull_request:
+  merge_group:
+    types: [checks_requested]
+  push:
+    branches:
+      - 'main'
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Select the platform workflow to run manually
+        required: true
+        type: choice
+        default: none
+        options:
+          - 'none'
+          - 'all'
+          - 'engineering-toolchain'
+          - 'ai-coding-cli-toolchain'
+          - 'pandora-node24'
+          - 'pandora-integration'
+          - 'pandora-intelligence'
+          - 'pandora-business-intelligence'
+          - 'pandora-ux-regression'
+          - 'windows-worker-contract'
+      source_sha:
+        description: Exact canonical source SHA to deploy when production deployment is explicitly enabled
+        required: false
+        type: string
+      deploy_production:
+        description: Enable the manual Task 146 prebuilt production deployment
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-platform-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect_scopes:
+    name: Detect platform test scopes
+    runs-on: ubuntu-24.04
+    outputs:
+      engineering_toolchain: ${{ steps.detect.outputs.engineering_toolchain }}
+      ai_coding_cli_toolchain: ${{ steps.detect.outputs.ai_coding_cli_toolchain }}
+      pandora_node24: ${{ steps.detect.outputs.pandora_node24 }}
+      pandora_integration: ${{ steps.detect.outputs.pandora_integration }}
+      pandora_intelligence: ${{ steps.detect.outputs.pandora_intelligence }}
+      pandora_business_intelligence: ${{ steps.detect.outputs.pandora_business_intelligence }}
+      pandora_ux_regression: ${{ steps.detect.outputs.pandora_ux_regression }}
+      windows_worker_contract: ${{ steps.detect.outputs.windows_worker_contract }}
+    steps:
+      - name: Check out source for path comparison
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - id: detect
+        name: Resolve the relevant original workflow scopes
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_SHA: ${{ github.sha }}
+          BEFORE_SHA: ${{ github.event.before || '' }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || '' }}
+          BASE_BRANCH: ${{ github.event.pull_request.base.ref || 'main' }}
+          PUSH_BRANCH: ${{ github.ref_name }}
+          TARGET: ${{ github.event.inputs.target || 'none' }}
+          SCOPE_CONFIG: |
+            {"engineering-toolchain":{"pull_request":{"present":true,"paths":["package.json","tooling/**","src/projectos/pandora-lifecycle.js","src/projectos/pandora-posthog-*.js","test/pandora-lifecycle.test.js","test/pandora-posthog-transport.test.js","supabase/**","scripts/check-supabase-syntax.mjs","scripts/verify-supabase-hardening.mjs","scripts/replay-supabase-migrations.mjs","docs/development/ENGINEERING_TOOLCHAIN.md",".github/workflows/ci-platform.yml"],"pathsIgnore":null,"branches":null,"branchesIgnore":null},"push":{"present":false},"merge_group":{"present":false},"workflow_dispatch":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"schedule":{"present":false},"workflow_run":{"present":false}},"ai-coding-cli-toolchain":{"pull_request":{"present":true,"paths":["scripts/install-ai-coding-clis.mjs",".github/workflows/ci-platform.yml","docs/development/AI_CODING_CLI_TOOLCHAIN.md","package.json"],"pathsIgnore":null,"branches":null,"branchesIgnore":null},"push":{"present":false},"merge_group":{"present":false},"workflow_dispatch":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"schedule":{"present":false},"workflow_run":{"present":false}},"pandora-node24":{"pull_request":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"push":{"present":true,"paths":null,"pathsIgnore":null,"branches":["main"],"branchesIgnore":null},"merge_group":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"workflow_dispatch":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"schedule":{"present":false},"workflow_run":{"present":false}},"pandora-integration":{"pull_request":{"present":true,"paths":["packages/pandora-integration/**","packages/pandora-intelligence/**","packages/pandora-tools/**","packages/pandora-project-runtime/**","workers/pandora-builder/**","package.json",".github/workflows/ci-platform.yml"],"pathsIgnore":null,"branches":null,"branchesIgnore":null},"push":{"present":true,"paths":["packages/pandora-integration/**","packages/pandora-intelligence/**","packages/pandora-tools/**","packages/pandora-project-runtime/**","workers/pandora-builder/**","package.json",".github/workflows/ci-platform.yml"],"pathsIgnore":null,"branches":["main"],"branchesIgnore":null},"merge_group":{"present":false},"workflow_dispatch":{"present":false},"schedule":{"present":false},"workflow_run":{"present":false}},"pandora-intelligence":{"pull_request":{"present":true,"paths":["packages/pandora-intelligence/**","docs/architecture/PANDORA_INTELLIGENCE_*.md",".github/workflows/ci-platform.yml"],"pathsIgnore":null,"branches":null,"branchesIgnore":null},"push":{"present":true,"paths":["packages/pandora-intelligence/**","docs/architecture/PANDORA_INTELLIGENCE_*.md",".github/workflows/ci-platform.yml"],"pathsIgnore":null,"branches":["main"],"branchesIgnore":null},"merge_group":{"present":false},"workflow_dispatch":{"present":false},"schedule":{"present":false},"workflow_run":{"present":false}},"pandora-business-intelligence":{"pull_request":{"present":true,"paths":["packages/pandora-business-intelligence/**","docs/architecture/PANDORA_BUSINESS_INTELLIGENCE_*.md",".github/workflows/ci-platform.yml"],"pathsIgnore":null,"branches":null,"branchesIgnore":null},"push":{"present":true,"paths":["packages/pandora-business-intelligence/**","docs/architecture/PANDORA_BUSINESS_INTELLIGENCE_*.md",".github/workflows/ci-platform.yml"],"pathsIgnore":null,"branches":["main"],"branchesIgnore":null},"merge_group":{"present":false},"workflow_dispatch":{"present":false},"schedule":{"present":false},"workflow_run":{"present":false}},"pandora-ux-regression":{"pull_request":{"present":true,"paths":["apps/pandora-mobile/**",".github/workflows/ci-platform.yml"],"pathsIgnore":null,"branches":null,"branchesIgnore":null},"push":{"present":false},"merge_group":{"present":false},"workflow_dispatch":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"schedule":{"present":false},"workflow_run":{"present":false}},"windows-worker-contract":{"pull_request":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"push":{"present":true,"paths":null,"pathsIgnore":null,"branches":["main"],"branchesIgnore":null},"merge_group":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"workflow_dispatch":{"present":true,"paths":null,"pathsIgnore":null,"branches":null,"branchesIgnore":null},"schedule":{"present":false},"workflow_run":{"present":false}}}
+        run: |
+          python3 - <<'PY'
+          import fnmatch,json,os,subprocess
+          cfg=json.loads(os.environ["SCOPE_CONFIG"]); event=os.environ["EVENT_NAME"]; target=os.environ.get("TARGET","none")
+          head=os.environ["HEAD_SHA"]; before=os.environ.get("BEFORE_SHA",""); base=os.environ.get("BASE_SHA","")
+          branch=os.environ.get("BASE_BRANCH" if event=="pull_request" else "PUSH_BRANCH","")
+          def diff_files(*args):
+              r=subprocess.run(["git","diff","--name-only",*args],capture_output=True,text=True);return set(x for x in r.stdout.splitlines() if x) if r.returncode==0 else set()
+          if event in ("pull_request","merge_group") and base:changed=diff_files(base,head)
+          elif event=="push" and before and set(before)!={"0"}:changed=diff_files(before,head)
+          elif event=="push":
+              r=subprocess.run(["git","diff-tree","--no-commit-id","--name-only","-r",head],capture_output=True,text=True);changed=set(r.stdout.splitlines())
+          else:changed=set()
+          def matches(v,ps):
+              state=False
+              for p in ps:
+                  if p.startswith("!"):
+                      if fnmatch.fnmatchcase(v,p[1:]):state=False
+                  elif fnmatch.fnmatchcase(v,p):state=True
+              return state
+          def on_scope(name,s):
+              spec=s.get(event,{"present":False})
+              if event=="workflow_dispatch":return spec.get("present",False) and target not in ("none","") and (target=="all" or target==name)
+              if not spec.get("present"):return False
+              if event in ("pull_request","push","merge_group"):
+                  allow=spec.get("branches")
+                  if allow is not None and not any(fnmatch.fnmatchcase(branch,p) for p in allow if not p.startswith("!")):return False
+                  if allow is not None and any(p.startswith("!") and fnmatch.fnmatchcase(branch,p[1:]) for p in allow):return False
+                  if any(fnmatch.fnmatchcase(branch,p) for p in (spec.get("branchesIgnore") or [])):return False
+                  ps=spec.get("paths"); ignored=spec.get("pathsIgnore")
+                  if ps is not None:return any(matches(f,ps) for f in changed)
+                  if ignored:return not any(matches(f,ignored) for f in changed)
+                  return True
+              return event in ("schedule","workflow_run")
+          values=[n.replace("-","_")+"="+("true" if on_scope(n,s) else "false") for n,s in cfg.items()]
+          with open(os.environ["GITHUB_OUTPUT"],"a",encoding="utf-8") as f:f.write("\n".join(values)+"\n")
+          print("Changed paths:",len(changed));print("\n".join(values))
+          PY
+
+  plat_engineering_project-tools:
+    permissions:
+      pull-requests: read
+    needs: detect_scopes
+    if: ${{ needs.detect_scopes.outputs.engineering_toolchain == 'true' }}
+    name: Project toolchain smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install Pandora runtime dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Install pinned engineering tools
+        run: npm ci --prefix tooling --ignore-scripts --no-audit --no-fund
+
+      - name: Verify project and provider CLIs
+        run: npm run tooling:verify
+
+      - name: Audit isolated engineering dependencies
+        run: npm run tooling:audit
+
+      - name: Verify PostHog privacy and transport contract
+        run: npm run posthog:contract
+
+      - name: Verify Supabase repository contract
+        run: npm run supabase:contract
+
+      - name: Replay all Supabase migrations in disposable PGlite
+        run: node scripts/replay-supabase-migrations.mjs
+
+      - name: Verify MCP contract with Inspector
+        run: npm run mcp:inspect
+
+      - name: Run scoped Biome lint gate
+        run: npm run quality:biome
+
+      - name: Install Chromium
+        run: npm run playwright:install
+
+      - name: Run Playwright smoke
+        run: npm run test:e2e:smoke
+
+      - name: Knip report
+        continue-on-error: true
+        run: npm run quality:dead-code
+
+
+  plat_engineering_workflow-lint:
+    permissions:
+      pull-requests: read
+    needs: detect_scopes
+    if: ${{ needs.detect_scopes.outputs.engineering_toolchain == 'true' }}
+    name: actionlint and ShellCheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install actionlint and ShellCheck
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+          go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Verify versions
+        run: |
+          actionlint -version
+          shellcheck --version
+
+      - name: Lint this workflow strictly
+        run: actionlint -color -shellcheck= .github/workflows/canonical-release-evidence.yml .github/workflows/ci-operations.yml .github/workflows/ci-platform.yml .github/workflows/ci-mobile.yml .github/workflows/ci-governance.yml
+
+      - name: Report existing workflow debt
+        continue-on-error: true
+        run: actionlint -color
+
+
+  plat_engineering_secret-scan:
+    permissions:
+      pull-requests: read
+    needs: detect_scopes
+    if: ${{ needs.detect_scopes.outputs.engineering_toolchain == 'true' }}
+    name: Gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan repository history
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: false
+
+
+  plat_engineering_vulnerability-scan:
+    permissions:
+      pull-requests: read
+    needs: detect_scopes
+    if: ${{ needs.detect_scopes.outputs.engineering_toolchain == 'true' }}
+    name: Trivy filesystem
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Scan dependencies, config, and secrets
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: table
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+
+
+  plat_ai_cli_install-smoke:
+    needs: detect_scopes
+    if: ${{ needs.detect_scopes.outputs.ai_coding_cli_toolchain == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+
+      - name: Use user-local npm prefix
+        shell: bash
+        run: |
+          mkdir -p "$HOME/.local"
+          npm config set prefix "$HOME/.local"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Install Codex, Claude Code, Gemini CLI, and Grok Build
+        run: node scripts/install-ai-coding-clis.mjs
+
+      - name: Verify all four CLIs
+        run: node scripts/install-ai-coding-clis.mjs --verify-only
+
+
+  plat_node24_node24:
+    name: node24
+    needs: detect_scopes
+    if: ${{ needs.detect_scopes.outputs.pandora_node24 == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Check out exact source
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Use Node 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Run canonical Node 24 gate
+        run: npm run check && npm test && npm audit --omit=dev --audit-level=high
+
+
+  plat_integration_deterministic:
+    needs: detect_scopes
+    if: ${{ needs.detect_scopes.outputs.pandora_integration == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Build Pandora Intelligence
+        run: ./node_modules/.bin/tsc -p packages/pandora-intelligence/tsconfig.json
+      - name: Test Intelligence, Gateway, Builder and Integration boundaries
+        run: >-
+          node --test
+          packages/pandora-intelligence/test/*.test.js
+          packages/pandora-tools/test/*.test.js
+          workers/pandora-builder/test/*.test.mjs
+          packages/pandora-integration/test/*.test.mjs
+
+
+  plat_intelligence_deterministic:
+    needs: detect_scopes
+    if: ${{ needs.detect_scopes.outputs.pandora_intelligence == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Build Pandora Intelligence
+        run: ./node_modules/.bin/tsc -p packages/pandora-intelligence/tsconfig.json
+      - name: Test Pandora Intelligence
+        run: node --test packages/pandora-intelligence/test/*.test.js
+
+
+  plat_business_intelligence_deterministic:
+    needs: detect_scopes
+    if: ${{ needs.detect_scopes.outputs.pandora_business_intelligence == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+      - name: Syntax check Worker H v1
+        run: node --check packages/pandora-business-intelligence/src/*.js packages/pandora-business-intelligence/src/analytics/*.js
+      - name: Test Worker H v1
+        run: node --test packages/pandora-business-intelligence/test/*.test.js
+
+
+  plat_ux_widget-journeys:
+    needs: detect_scopes
+    if: ${{ needs.detect_scopes.outputs.pandora_ux_regression == 'true' }}
+    name: UX / responsive workspace and navigation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      SOURCE_SHA: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          persist-credentials: false
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: '3.47.0'
+          cache: true
+      - name: Verify exact source
+        run: test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+      - name: Analyze and run production-widget journeys
+        working-directory: apps/pandora-mobile
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter pub get --enforce-lockfile
+          flutter analyze --no-pub lib/features/enterprise/enterprise_workspace_home.dart test/features/enterprise/enterprise_workspace_navigation_test.dart
+          flutter test --no-pub --reporter expanded test/features/enterprise/enterprise_workspace_navigation_test.dart test/app/pandora_chat_navigation_test.dart test/app/lane_h_chat_polish_test.dart test/app/plp_navigation_drawer_test.dart test/app/plp_command_dock_keyboard_test.dart test/app/plp_owner_journey_acceptance_test.dart test/features/simple/pandora_picker_tap_through_test.dart
+
+      - name: Capture and verify Lane H owner goldens
+        working-directory: apps/pandora-mobile
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter test --no-pub --reporter expanded test/goldens/lane_h_chat_picker_visual_evidence_test.dart
+          flutter test --no-pub --reporter expanded             test/goldens/owner_screens_visual_evidence_test.dart             --plain-name "captures lane_g_bok_restaurants_section_390x844"
+          for image in             lane_h_landing_resting_390x844             lane_h_keyboard_open_390x844             lane_h_after_send_thinking_390x844             lane_h_picker_open_390x844             lane_h_picker_end_390x844             lane_h_non_auto_tag_390x844
+          do
+            test -s "test/goldens/owner_screens/$image.png"
+          done
+          test -s test/goldens/owner_screens/lane_g_bok_restaurants_section_390x844.png
+
+      - name: Upload Lane H shell and picker evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: lane-h-shell-picker-evidence-${{ env.SOURCE_SHA }}
+          path: |
+            apps/pandora-mobile/build/lane-h-goldens
+            apps/pandora-mobile/test/failures/owner_screens
+            apps/pandora-mobile/test/goldens/owner_screens/lane_h_landing_resting_390x844.png
+            apps/pandora-mobile/test/goldens/owner_screens/lane_h_keyboard_open_390x844.png
+            apps/pandora-mobile/test/goldens/owner_screens/lane_h_after_send_thinking_390x844.png
+            apps/pandora-mobile/test/goldens/owner_screens/lane_h_picker_open_390x844.png
+            apps/pandora-mobile/test/goldens/owner_screens/lane_h_picker_end_390x844.png
+            apps/pandora-mobile/test/goldens/owner_screens/lane_h_non_auto_tag_390x844.png
+            apps/pandora-mobile/test/goldens/owner_screens/lane_g_bok_restaurants_section_390x844.png
+          if-no-files-found: error
+          retention-days: 7
+
+
+  plat_windows_worker-impact:
+    needs: detect_scopes
+    if: ${{ needs.detect_scopes.outputs.windows_worker_contract == 'true' }}
+    name: Detect Windows worker impact
+    runs-on: ubuntu-latest
+    outputs:
+      windows: ${{ steps.detect.outputs.windows }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+          persist-credentials: false
+      - id: detect
+        shell: bash
+        run: |
+          set -euo pipefail
+          windows=true
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            windows=false
+            if git rev-parse "${GITHUB_SHA}^1" >/dev/null 2>&1; then
+              while IFS= read -r path; do
+                case "$path" in
+                  apps/pandora-mobile/*|docs/*)
+                    ;;
+                  *)
+                    windows=true
+                    break
+                    ;;
+                esac
+              done < <(git diff --name-only "${GITHUB_SHA}^1" "${GITHUB_SHA}")
+            else
+              windows=true
+            fi
+          fi
+          echo "windows=${windows}" >> "$GITHUB_OUTPUT"
+
+
+  plat_windows_worker-contract:
+    needs: [detect_scopes, plat_windows_worker-impact]
+    if: ${{ needs.detect_scopes.outputs.windows_worker_contract == 'true' && (needs.plat_windows_worker-impact.outputs.windows == 'true') }}
+    name: Windows worker contract
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Preserve repository LF bytes
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Verify exact checkout
+        shell: pwsh
+        run: |
+          if ((git rev-parse HEAD) -ne '${{ github.sha }}') { exit 1 }
+          if (git status --porcelain --untracked-files=all) { exit 1 }
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run test:worker
+      - name: Confirm tests did not mutate source
+        shell: pwsh
+        run: if (git status --porcelain --untracked-files=all) { exit 1 }
+
+  platform_edge_source_artifact:
+    if: ${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Prove exact clean checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="${{ github.sha }}"
+          test "$(git rev-parse HEAD)" = "$expected"
+          test -z "$(git status --porcelain --untracked-files=all)"
+          sha256sum \
+            supabase/functions/pandora-project-runtime/index.ts \
+            supabase/functions/pandora-project-source-generator/index.ts \
+            supabase/functions/pandora-project-spec-compiler/index.ts \
+            > edge-source-sha256.txt
+
+      - name: Detect Edge source changes
+        id: edge_changes
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" != "pull_request" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git cat-file -e "$BASE_SHA^{commit}"
+          if git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- \
+            supabase/functions/pandora-project-runtime/index.ts \
+            supabase/functions/pandora-project-source-generator/index.ts \
+            supabase/functions/pandora-project-spec-compiler/index.ts; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Record exact PR Edge source receipt
+        if: ${{ github.event_name == 'pull_request' && steps.edge_changes.outputs.changed == 'true' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_sha="$(git rev-parse HEAD)"
+          source_tree="$(git rev-parse 'HEAD^{tree}')"
+          digest="$(sha256sum edge-source-sha256.txt | cut -d ' ' -f1)"
+          [[ "$source_sha" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$source_tree" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$digest" =~ ^[0-9a-f]{64}$ ]]
+          printf 'PANDORA_EDGE_PR_SOURCE_RECEIPT source_sha=%s source_tree=%s manifest_sha256=%s release_authority=false artifact_provider=deferred\n' \
+            "$source_sha" "$source_tree" "$digest"
+          {
+            echo '### Pull-request Edge source receipt'
+            echo "- Source SHA: `$source_sha`"
+            echo "- Source tree: `$source_tree`"
+            echo "- Manifest SHA-256: `$digest`"
+            echo '- Release authority: `false`'
+            echo '- Artifact provider: deferred to non-PR/release lane'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload exact Edge sources
+        if: ${{ github.event_name != 'pull_request' && steps.edge_changes.outputs.changed == 'true' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: pandora-edge-source-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            supabase/functions/pandora-project-runtime/index.ts
+            supabase/functions/pandora-project-source-generator/index.ts
+            supabase/functions/pandora-project-spec-compiler/index.ts
+            edge-source-sha256.txt
+
+      - name: Confirm no Edge source artifact is required
+        if: ${{ steps.edge_changes.outputs.changed != 'true' }}
+        run: echo "No governed Edge source changed in this pull request."
+
+  platform_prebuilt_production:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.deploy_production == true && inputs.source_sha != '' }}
+    name: prebuilt-mcpmaster-production
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      VERCEL_ORG_ID: team_3yw1CN59ce4pj5SwyQGCAqN3
+      VERCEL_PROJECT_ID: prj_Y5rZVcq8xJVzHVt4uvfmg9wPvXMk
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+      - name: Validate exact source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+
+      - name: Check out exact canonical source
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Verify checkout identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain --untracked-files=all)"
+
+      - name: Use repository Node runtime
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Pull production project configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$VERCEL_TOKEN"
+          mkdir -p .vercel
+          printf '{"orgId":"%s","projectId":"%s"}\n' "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" > .vercel/project.json
+          npx --yes vercel@59.10.0 pull \
+            --yes \
+            --environment=production \
+            --token="$VERCEL_TOKEN"
+
+      - name: Build exact source on the GitHub runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes vercel@59.10.0 build \
+            --prod \
+            --token="$VERCEL_TOKEN"
+          test -f .vercel/output/config.json
+
+      - name: Deploy prebuilt output to production
+        id: deploy
+        shell: bash
+        run: |
+          set -euo pipefail
+          output="$(
+            npx --yes vercel@59.10.0 deploy \
+              --prebuilt \
+              --prod \
+              --yes \
+              --token="$VERCEL_TOKEN"
+          )"
+          printf '%s\n' "$output"
+          url="$(printf '%s\n' "$output" | grep -Eo 'https://[^[:space:]]+\.vercel\.app' | tail -n 1)"
+          test -n "$url"
+          echo "deployment_url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Verify deployment and production alias
+        shell: bash
+        env:
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment_url }}
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location \
+            --max-time 30 "$DEPLOYMENT_URL/health" > /tmp/deployment-health.json
+          curl --fail --silent --show-error --location \
+            --max-time 30 "https://mcpmaster.vercel.app/health" > /tmp/production-health.json
+          printf 'deployment=%s\nsource_sha=%s\n' "$DEPLOYMENT_URL" "$SOURCE_SHA"
+          cat /tmp/deployment-health.json
+          printf '\n'
+          cat /tmp/production-health.json
+          printf '\n'
+
+      - name: Record exact deployment evidence
+        shell: bash
+        env:
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment_url }}
+        run: |
+          {
+            echo '### Task 146 prebuilt production deployment'
+            echo
+            echo "- Source SHA: \`$SOURCE_SHA\`"
+            echo "- Deployment: \`$DEPLOYMENT_URL\`"
+            echo "- Production alias: \`https://mcpmaster.vercel.app\`"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -296,7 +296,7 @@ function buildCanonicalStatusPack(input) {
     && mobileArtifact.productionOrigin === "https://mcpmaster.vercel.app"
     && mobileArtifact.productionOrigin === mobileArtifactReceipt.productionOrigin
     && mobileArtifact.event === "push"
-    && mobileArtifact.workflowPath === ".github/workflows/pandora-mobile-integration.yml"
+    && mobileArtifact.workflowPath === ".github/workflows/ci-mobile.yml"
     && Number.isFinite(mobileArtifactCreatedAt)
     && Number.isFinite(Date.parse(mobileArtifact.artifactExpiresAt || ""))
     && Number.isFinite(mobileArtifactRunCompletedAt)

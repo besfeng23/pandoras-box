@@ -751,7 +751,7 @@ test('scheduler handles full project larger than the intake batch limit',()=>{
  assert.equal(r.assignments.length,0);assert.equal(r.blocked.length,5001);
 });
 test('dedicated main workflow watches verification profile changes',()=>{
- const workflow=fs.readFileSync(path.join(__dirname,'../.github/workflows/operations-room-runtime.yml'),'utf8');
- const push=workflow.split('  push:')[1].split('  workflow_dispatch:')[0];
- assert.ok(push.includes('packages/pandora-verification/src/registry.js'));
+  const workflow=fs.readFileSync(path.join(__dirname,'../.github/workflows/ci-operations.yml'),'utf8');
+  assert.ok(workflow.includes('"packages/pandora-verification/src/registry.js"'));
+  assert.ok(workflow.includes('"operations-room-runtime"'));
 });

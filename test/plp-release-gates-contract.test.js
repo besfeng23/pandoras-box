@@ -3,7 +3,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const verifier = fs.readFileSync('.pandora-verifier/verify.sh', 'utf8');
-const workflow = fs.readFileSync('.github/workflows/plp-pandora-enterprise-android.yml', 'utf8');
+const workflow = fs.readFileSync('.github/workflows/ci-mobile.yml', 'utf8');
 const physical = fs.readFileSync('apps/pandora-mobile/tool/verify_physical_android_candidate.py', 'utf8');
 const localAi = fs.readFileSync('apps/pandora-mobile/lib/features/settings/local_ai_settings_screen.dart', 'utf8');
 const config = fs.readFileSync('apps/pandora-mobile/lib/pandora_config.dart', 'utf8');

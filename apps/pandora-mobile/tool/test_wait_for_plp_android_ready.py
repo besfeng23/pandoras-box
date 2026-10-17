@@ -191,7 +191,7 @@ class DrawnReadinessTests(unittest.TestCase):
             self.assertNotIn('fixture-', output.read_text())
 
     def test_workflow_drawn_checks_bound_capture_single_tap_and_restart(self):
-        workflow = Path(__file__).resolve().parents[3] / '.github/workflows/plp-pandora-enterprise-android.yml'
+        workflow = Path(__file__).resolve().parents[3] / '.github/workflows/ci-mobile.yml'
         source = workflow.read_text()
         step = source.split('- name: Exercise installed PLP APK lifecycle and unauthenticated client flow', 1)[1]
         step = step.split('- name: Upload installed-app acceptance evidence', 1)[0]
