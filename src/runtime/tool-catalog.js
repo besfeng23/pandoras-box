@@ -13,6 +13,10 @@ const supabase_js_1 = require("../tools/supabase.js");
 const tool_manifest_js_1 = require("./tool-manifest.js");
 const result_redaction_js_1 = require("./result-redaction.js");
 const source_authority_js_1 = require("./source-authority.js");
+const provider_execution_state_machine_js_1 = require("./provider-execution-state-machine.js");
+function localPolicyDenial(message) {
+    return (0, provider_execution_state_machine_js_1.markProviderOutcome)(Object.assign(new Error(message), { status: 403 }), 'failed_before_side_effects', 'local_policy_denial');
+}
 const githubDefinitions = {
     ...github_js_1.githubTools,
     // The server method and executor case already existed, but the tool was never
@@ -88,15 +92,15 @@ function assertRequiredScopes(definition, grantedScopes) {
     const granted = new Set(grantedScopes.map((scope) => scope.trim()).filter(Boolean));
     const missing = definition.manifest.requiredProviderScopes.filter((scope) => !granted.has(scope));
     if (missing.length > 0) {
-        throw new Error(`${definition.handler} account is missing required scope${missing.length === 1 ? '' : 's'}: ${missing.join(', ')}`);
+        throw localPolicyDenial(`${definition.handler} account is missing required scope${missing.length === 1 ? '' : 's'}: ${missing.join(', ')}`);
     }
 }
 function assertGitHubAccess(definition, args, configuration) {
     if (configuration.baseUrl !== 'https://api.github.com') {
-        throw new Error('GitHub API origin is not trusted');
+        throw localPolicyDenial('GitHub API origin is not trusted');
     }
     if (definition.manifest.mutation && !configuration.allowMutations) {
-        throw new Error(`GitHub mutations are disabled for account ${configuration.id}`);
+        throw localPolicyDenial(`GitHub mutations are disabled for account ${configuration.id}`);
     }
     assertRequiredScopes(definition, configuration.grantedScopes);
     const owner = typeof args.owner === 'string' ? args.owner : undefined;
@@ -105,7 +109,7 @@ function assertGitHubAccess(definition, args, configuration) {
     if (owner && repo) {
         const fullName = normalizedRepository(`${owner}/${repo}`);
         if (!allowlist.has(fullName)) {
-            throw new Error(`GitHub account ${configuration.id} is not allowed to access ${owner}/${repo}`);
+            throw localPolicyDenial(`GitHub account ${configuration.id} is not allowed to access ${owner}/${repo}`);
         }
         if (definition.manifest.mutation) {
             (0, source_authority_js_1.assertOperationalRepository)(`${owner}/${repo}`, 'mutate');
@@ -123,18 +127,18 @@ function assertSupabaseAccess(definition, args, configuration) {
         return;
     const accountId = typeof args.accountId === 'string' ? args.accountId : undefined;
     if (!accountId)
-        throw new Error('Supabase operation requires an explicit accountId');
+        throw localPolicyDenial('Supabase operation requires an explicit accountId');
     const account = selectedSupabaseAccount(configuration, args);
     if (!account)
-        throw new Error(`Unknown Supabase account: ${accountId}`);
+        throw localPolicyDenial(`Unknown Supabase account: ${accountId}`);
     if (definition.manifest.mutation && !account.allowMutations) {
-        throw new Error(`Mutations are disabled for Supabase account ${account.id}`);
+        throw localPolicyDenial(`Mutations are disabled for Supabase account ${account.id}`);
     }
     assertRequiredScopes(definition, account.grantedScopes);
 }
 function assertMemoryAccess(definition, args, configuration) {
     if (definition.manifest.mutation && configuration.allowMutations !== true) {
-        throw new Error('Pandora Memory mutations are disabled');
+        throw localPolicyDenial('Pandora Memory mutations are disabled');
     }
     assertRequiredScopes(definition, configuration.grantedScopes);
     // All Memory tools except health are namespace-scoped. Keep this generic so
@@ -142,7 +146,7 @@ function assertMemoryAccess(definition, args, configuration) {
     if (definition.manifest.name !== 'memory.health') {
         const namespace = typeof args.namespace === 'string' ? args.namespace : undefined;
         if (!namespace || !configuration.allowedNamespaces.includes(namespace)) {
-            throw new Error(`Pandora Memory namespace is not allowed: ${namespace || 'missing'}`);
+            throw localPolicyDenial(`Pandora Memory namespace is not allowed: ${namespace || 'missing'}`);
         }
     }
 }
@@ -157,17 +161,17 @@ function assertFlutterFlowAccess(definition, args, configuration) {
         return;
     const accountId = typeof args.accountId === 'string' ? args.accountId : undefined;
     if (!accountId)
-        throw new Error('FlutterFlow operation requires an explicit accountId');
+        throw localPolicyDenial('FlutterFlow operation requires an explicit accountId');
     const account = selectedFlutterFlowAccount(configuration, args);
     if (!account)
-        throw new Error(`Unknown FlutterFlow account: ${accountId}`);
+        throw localPolicyDenial(`Unknown FlutterFlow account: ${accountId}`);
     if (account.baseUrl !== 'https://api.flutterflow.io/v2') {
-        throw new Error('FlutterFlow Project API origin is not trusted');
+        throw localPolicyDenial('FlutterFlow Project API origin is not trusted');
     }
     assertRequiredScopes(definition, account.grantedScopes);
     const projectId = typeof args.projectId === 'string' ? args.projectId : undefined;
     if (projectId && !account.allowedProjectIds.includes(projectId)) {
-        throw new Error(`FlutterFlow account ${account.id} is not allowed to access project ${projectId}`);
+        throw localPolicyDenial(`FlutterFlow account ${account.id} is not allowed to access project ${projectId}`);
     }
 }
 function repositoryFromApiUrl(value) {

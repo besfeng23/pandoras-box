@@ -4,6 +4,7 @@ exports.supabaseTools = exports.SupabaseMCPServer = exports.SupabaseManagementEr
 exports.executeSupabaseTool = executeSupabaseTool;
 const zod_1 = require("zod");
 const crypto_1 = require("node:crypto");
+const provider_execution_state_machine_js_1 = require("../runtime/provider-execution-state-machine.js");
 const MANAGEMENT_API_ORIGIN = 'https://api.supabase.com/v1';
 const DEFAULT_TIMEOUT_MS = 10000;
 const DEFAULT_MAX_RESPONSE_BYTES = 1000000;
@@ -107,6 +108,9 @@ class SupabaseManagementError extends Error {
     }
 }
 exports.SupabaseManagementError = SupabaseManagementError;
+function localPolicyDenial(message, status = 403) {
+    return (0, provider_execution_state_machine_js_1.markProviderOutcome)(new SupabaseManagementError(message, status), 'failed_before_side_effects', 'local_policy_denial');
+}
 class SupabaseMCPServer {
     constructor(configuration, fetchFn = globalThis.fetch) {
         this.config = RuntimeConfigurationSchema.parse(configuration);
@@ -140,12 +144,12 @@ class SupabaseMCPServer {
         if (organizationSlug
             && (account.allowedOrganizationSlugs.length === 0
                 || !account.allowedOrganizationSlugs.includes(organizationSlug))) {
-            throw new SupabaseManagementError(`Supabase account ${account.id} is not allowed to access organization ${organizationSlug}`, 403);
+            throw localPolicyDenial(`Supabase account ${account.id} is not allowed to access organization ${organizationSlug}`, 403);
         }
         if (!organizationSlug
             && account.allowedOrganizationSlugs.length === 0
             && account.allowedProjectRefs.length === 0) {
-            throw new SupabaseManagementError(`Supabase account ${account.id} has no allowlisted projects or organizations`, 403);
+            throw localPolicyDenial(`Supabase account ${account.id} has no allowlisted projects or organizations`, 403);
         }
         const path = organizationSlug
             ? `/organizations/${encodeURIComponent(organizationSlug)}/projects?offset=0&limit=100`
@@ -214,13 +218,13 @@ class SupabaseMCPServer {
     account(accountId) {
         const account = this.config.accounts.find((candidate) => candidate.id === accountId);
         if (!account) {
-            throw new SupabaseManagementError(`Unknown Supabase account: ${accountId}`, 404);
+            throw (0, provider_execution_state_machine_js_1.markProviderOutcome)(new SupabaseManagementError(`Unknown Supabase account: ${accountId}`, 404), 'failed_before_side_effects', 'local_policy_denial');
         }
         return account;
     }
     assertMutationAllowed(account) {
         if (!account.allowMutations) {
-            throw new SupabaseManagementError(`Mutations are disabled for Supabase account ${account.id}`, 403);
+            throw localPolicyDenial(`Mutations are disabled for Supabase account ${account.id}`, 403);
         }
     }
     assertConfirmation(actual, expected) {
@@ -231,7 +235,7 @@ class SupabaseMCPServer {
     assertProjectRefAllowed(account, projectRef) {
         if ((account.allowedProjectRefs.length === 0 && account.allowedOrganizationSlugs.length === 0)
             || (account.allowedProjectRefs.length > 0 && !account.allowedProjectRefs.includes(projectRef))) {
-            throw new SupabaseManagementError(`Supabase account ${account.id} is not allowed to access project ${projectRef}`, 403);
+            throw localPolicyDenial(`Supabase account ${account.id} is not allowed to access project ${projectRef}`, 403);
         }
     }
     projectAllowed(account, projectRef, organizationSlug) {
