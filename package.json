@@ -1,6 +1,6 @@
 {
     "bugs": {
-        "url": "https://github.com/pandora-rvw-314296438-20260820/pandoras-box/issues"
+        "url": "https://github.com/besfeng23/pandoras-box/issues"
     },
     "main": "vercel-entrypoint.js",
     "name": "mcpmaster",
@@ -84,7 +84,7 @@
         "proxy-addr": "2.0.8"
     },
     "repository": {
-        "url": "git+https://github.com/pandora-rvw-314296438-20260820/pandoras-box.git",
+        "url": "git+https://github.com/besfeng23/pandoras-box.git",
         "type": "git"
     },
     "workspaces": [

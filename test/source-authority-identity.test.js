@@ -53,7 +53,7 @@ test('canonical source, Vercel identity, and live status are the recovery operat
   assert.match(recovery, /Do not treat a green CI SHA as a production release/);
   assert.match(recovery, /cc0421f4461219bd6a9e864295d70743e8cd32dc/);
 
-  assert.equal(pack.repository.url, 'git+https://github.com/pandora-rvw-314296438-20260820/pandoras-box.git');
+  assert.equal(pack.repository.url, 'git+https://github.com/besfeng23/pandoras-box.git');
   assert.equal(vercel.env.PANDORA_MCP_RESOURCE_ORIGIN, 'https://mcpmaster.vercel.app');
   assert.equal(vercel.env.PROJECTOS_MCP_RESOURCE_ORIGIN, undefined);
   assert.equal(historical.supersededBy, '/api/operator/status');

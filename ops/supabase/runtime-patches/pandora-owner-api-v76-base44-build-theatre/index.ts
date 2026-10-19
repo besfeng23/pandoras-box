@@ -952,7 +952,7 @@ async function githubInstallationToken(admin: UntypedSupabaseClient) {
   const privateKeyPem = textValue(material.privateKeyPem);
   if (
     !Number.isInteger(appId) || appId !== 4785021 ||
-    !Number.isInteger(installationId) || installationId !== 158056492 ||
+    !Number.isInteger(installationId) || installationId !== 173093145 ||
     !privateKeyPem.includes("PRIVATE KEY")
   ) {
     throw new Error("CONNECTION_TEST_FAILED");
