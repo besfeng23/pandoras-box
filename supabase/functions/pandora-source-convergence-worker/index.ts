@@ -91,7 +91,7 @@ async function frozenGithubText(commit: string, path: string, maxBytes: number) 
   if (!/^[0-9a-f]{40}$/.test(commit) || !SAFE_PATH.test(path)) {
     throw new Error("PRIMITIVE_SOURCE_IDENTITY_INVALID");
   }
-  const url = `https://raw.githubusercontent.com/pandora-rvw-314296438-20260820/pandoras-box/${commit}/${path}`;
+  const url = `https://raw.githubusercontent.com/besfeng23/pandoras-box/${commit}/${path}`;
   const result = await fetch(url, {
     method: "GET",
     redirect: "error",

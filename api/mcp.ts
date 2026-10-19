@@ -7,7 +7,7 @@ import { buildToolConfiguration } from '../src/runtime/service-config.js';
 import { toolRegistry } from '../src/tools/index.js';
 
 const CANONICAL_REPOSITORY =
-  'pandora-rvw-314296438-20260820/pandoras-box';
+  'besfeng23/pandoras-box';
 const CANONICAL_SUPABASE_ACCOUNT = 'pandoras-box';
 const CANONICAL_SUPABASE_PROJECT_REF = 'jcyqixttuebxqqfkjonq';
 

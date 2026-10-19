@@ -21,14 +21,14 @@ test("owner GitHub connection verification is GitHub-App-primary", () => {
   assert.match(ownerApi, /crypto\.subtle\.sign/);
   assert.match(ownerApi, /pandora_get_github_app_runtime_material/);
   assert.match(ownerApi, /appId !== 4785021/);
-  assert.match(ownerApi, /installationId !== 158056492/);
+  assert.match(ownerApi, /installationId !== 173093145/);
   assert.match(
     ownerApi,
     /api\.github\.com\/app\/installations\/\$\{installationId\}\/access_tokens/,
   );
   assert.match(
     ownerApi,
-    /api\.github\.com\/repos\/\$\{CANONICAL_REPOSITORY\}/,
+    /api\.github\.com\/repos\/\$\{GITHUB_APP_REPOSITORY\}/,
   );
 
   const verifyStart = ownerApi.indexOf("async function verifyGithubConnection");

@@ -35,6 +35,7 @@ const ALLOWED_ORIGINS = parseAllowedOrigins(
 const MCPMASTER_CONNECT_ORIGIN = "https://mcpmaster.vercel.app";
 const MCPMASTER_CONNECT_PATH = "/api/operator/connect/pandoras-box";
 const CONNECT_BRIDGE_MAX_RESPONSE_BYTES = 64 * 1024;
+const GITHUB_APP_REPOSITORY = "besfeng23/pandoras-box";
 
 const CORS_BASE_HEADERS = {
   "access-control-allow-headers":
@@ -1790,7 +1791,7 @@ async function githubInstallationToken(admin: UntypedSupabaseClient) {
   const privateKeyPem = textValue(material.privateKeyPem);
   if (
     !Number.isInteger(appId) || appId !== 4785021 ||
-    !Number.isInteger(installationId) || installationId !== 158056492 ||
+    !Number.isInteger(installationId) || installationId !== 173093145 ||
     !privateKeyPem.includes("PRIVATE KEY")
   ) {
     throw new Error("CONNECTION_TEST_FAILED");
@@ -1829,7 +1830,7 @@ async function verifyGithubConnection(
   });
   const token = await githubInstallationToken(admin);
   const response = await fetch(
-    `https://api.github.com/repos/${CANONICAL_REPOSITORY}`,
+    `https://api.github.com/repos/${GITHUB_APP_REPOSITORY}`,
     {
       headers: {
         accept: "application/vnd.github+json",
@@ -1843,7 +1844,7 @@ async function verifyGithubConnection(
   const repository = asRecord(await response.json().catch(() => ({})));
   if (
     response.status !== 200 ||
-    textValue(repository.full_name) !== CANONICAL_REPOSITORY
+    textValue(repository.full_name) !== GITHUB_APP_REPOSITORY
   ) {
     throw new Error("CONNECTION_TEST_FAILED");
   }

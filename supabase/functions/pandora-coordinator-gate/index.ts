@@ -12,7 +12,8 @@ import { assertLiveIdentity, expireCheck, publishDecision, revokeCheckForSnapsho
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-const INSTALLATION_ID = 158056492;
+const INSTALLATION_ID = 173093145;
+const GITHUB_API_REPOSITORY = "besfeng23/pandoras-box";
 const MAX_BODY_BYTES = 48 * 1024;
 const PASS_ENABLED = true;
 
@@ -132,7 +133,7 @@ async function githubInstallationToken(admin: ReturnType<typeof adminClient>) {
 async function githubJson(token: string, path: string, init: RequestInit = {}, ambiguousWrite = false) {
   let response: Response;
   try {
-    response = await fetch(`https://api.github.com/repos/${CANONICAL_REPOSITORY}/${path}`, {
+    response = await fetch(`https://api.github.com/repos/${GITHUB_API_REPOSITORY}/${path}`, {
       ...init,
       redirect: "error",
       headers: {

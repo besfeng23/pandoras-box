@@ -7,9 +7,9 @@ import { buildToolConfiguration } from '../src/runtime/service-config.js';
 import { toolRegistry } from '../src/tools/index.js';
 
 const CONNECTOR_UID = 'github/pandora';
-const INSTALLATION_ID = '158056492';
-const CANONICAL_REPOSITORY = 'pandora-rvw-314296438-20260820/pandoras-box';
-const CANONICAL_LOGIN = 'pandora-rvw-314296438-20260820';
+const INSTALLATION_ID = '173093145';
+const CANONICAL_REPOSITORY = 'besfeng23/pandoras-box';
+const CANONICAL_LOGIN = 'besfeng23';
 const ORGANIZATION_ID = '2270b266-59da-4c39-bfd9-9f8d08352af0';
 const WORKER_IDENTITY_URL =
   'https://jcyqixttuebxqqfkjonq.supabase.co/functions/v1/mcpmaster-supabase-control/gemini-worker/identity';

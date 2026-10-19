@@ -9,7 +9,7 @@ const {
 const OIDC = "v".repeat(80);
 const REPOSITORY = "pandora-rvw-314296438-20260820/pandoras-box";
 const CONNECTOR = "github/pandora";
-const INSTALLATION = "158056492";
+const INSTALLATION = "173093145";
 
 function tokenResponse(overrides = {}) {
   return new Response(JSON.stringify({
