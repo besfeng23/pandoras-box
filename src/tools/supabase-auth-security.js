@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.supabaseAuthSecurityTools = exports.SupabaseAuthSecurityServer = exports.SupabaseAuthSecurityError = void 0;
 exports.executeSupabaseAuthSecurityTool = executeSupabaseAuthSecurityTool;
 const zod_1 = require("zod");
+const provider_execution_state_machine_js_1 = require("../runtime/provider-execution-state-machine.js");
 const MANAGEMENT_API_ORIGIN = 'https://api.supabase.com/v1';
 const DEFAULT_TIMEOUT_MS = 10000;
 const DEFAULT_MAX_RESPONSE_BYTES = 1000000;
@@ -32,6 +33,9 @@ class SupabaseAuthSecurityError extends Error {
     }
 }
 exports.SupabaseAuthSecurityError = SupabaseAuthSecurityError;
+function localPolicyDenial(message, status = 403) {
+    return (0, provider_execution_state_machine_js_1.markProviderOutcome)(new SupabaseAuthSecurityError(message, status), 'failed_before_side_effects', 'local_policy_denial');
+}
 function expectedConfirmation(projectRef) {
     return `ENABLE LEAKED PASSWORD PROTECTION ${projectRef}`;
 }
@@ -95,13 +99,13 @@ class SupabaseAuthSecurityServer {
     account(accountId) {
         const account = this.configuration.accounts.find((candidate) => candidate.id === accountId);
         if (!account) {
-            throw new SupabaseAuthSecurityError(`Unknown Supabase account: ${accountId}`, 404);
+            throw localPolicyDenial(`Unknown Supabase account: ${accountId}`, 404);
         }
         return account;
     }
     assertMutationAllowed(account) {
         if (!account.allowMutations) {
-            throw new SupabaseAuthSecurityError(`Mutations are disabled for Supabase account ${account.id}`, 403);
+            throw localPolicyDenial(`Mutations are disabled for Supabase account ${account.id}`, 403);
         }
     }
     assertConfirmation(actual, expected) {
@@ -112,7 +116,7 @@ class SupabaseAuthSecurityServer {
     assertProjectRefAllowed(account, projectRef) {
         if (account.allowedProjectRefs.length === 0
             || !account.allowedProjectRefs.includes(projectRef)) {
-            throw new SupabaseAuthSecurityError(`Supabase account ${account.id} is not explicitly allowed to access project ${projectRef}`, 403);
+            throw localPolicyDenial(`Supabase account ${account.id} is not explicitly allowed to access project ${projectRef}`, 403);
         }
     }
     async ensureProjectAllowed(account, projectRef) {

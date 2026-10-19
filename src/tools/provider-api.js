@@ -5,6 +5,10 @@ exports.executeGitHubProviderApiTool = executeGitHubProviderApiTool;
 exports.executeSupabaseProviderApiTool = executeSupabaseProviderApiTool;
 const zod_1 = require("zod");
 const crypto_1 = require("node:crypto");
+const provider_execution_state_machine_js_1 = require("../runtime/provider-execution-state-machine.js");
+function localPolicyDenial(message) {
+    return (0, provider_execution_state_machine_js_1.markProviderOutcome)(Object.assign(new Error(message), { status: 403 }), 'failed_before_side_effects', 'local_policy_denial');
+}
 const GITHUB_API_ORIGIN = 'https://api.github.com';
 const SUPABASE_API_ORIGIN = 'https://api.supabase.com/v1';
 const DEFAULT_TIMEOUT_MS = 15000;
@@ -353,22 +357,22 @@ async function executeGitHubProviderApiTool(tool, args, configuration, fetchFn) 
 function supabaseAccount(configuration, accountId) {
     const account = configuration.accounts.find((candidate) => candidate.id === accountId);
     if (!account)
-        throw new Error(`Unknown Supabase account: ${accountId}`);
+        throw localPolicyDenial(`Unknown Supabase account: ${accountId}`);
     return account;
 }
 function assertSupabaseMutationAllowed(account) {
     if (!account.allowMutations)
-        throw new Error(`Mutations are disabled for Supabase account ${account.id}`);
+        throw localPolicyDenial(`Mutations are disabled for Supabase account ${account.id}`);
 }
 function assertOrganizationAllowed(account, organizationSlug) {
     if (account.allowedOrganizationSlugs.length === 0
         || !account.allowedOrganizationSlugs.includes(organizationSlug))
-        throw new Error(`Supabase account ${account.id} is not allowed to access organization ${organizationSlug}`);
+        throw localPolicyDenial(`Supabase account ${account.id} is not allowed to access organization ${organizationSlug}`);
 }
 function assertProjectRefAllowed(account, projectRef) {
     if ((account.allowedProjectRefs.length === 0 && account.allowedOrganizationSlugs.length === 0)
         || (account.allowedProjectRefs.length > 0 && !account.allowedProjectRefs.includes(projectRef))) {
-        throw new Error(`Supabase account ${account.id} is not allowed to access project ${projectRef}`);
+        throw localPolicyDenial(`Supabase account ${account.id} is not allowed to access project ${projectRef}`);
     }
 }
 function supabaseHeaders(token) {
@@ -500,7 +504,7 @@ function sameProjectSnapshot(left, right) {
 }
 async function readAllowedParentProject(account, configuration, parentProjectRef, phase, fetchFn, expectedSnapshot, requireHealthy = false) {
     if (!account.allowedProjectRefs.includes(parentProjectRef)) {
-        throw new Error(`Supabase account ${account.id} is not statically allowed to access parent project ${parentProjectRef}`);
+        throw localPolicyDenial(`Supabase account ${account.id} is not statically allowed to access parent project ${parentProjectRef}`);
     }
     const project = await supabaseRequest(account, configuration, `/projects/${encodeURIComponent(parentProjectRef)}`, 'GET', {}, undefined, fetchFn);
     const ref = project && typeof project === 'object' && !Array.isArray(project)
