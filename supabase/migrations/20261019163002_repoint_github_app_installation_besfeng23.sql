@@ -49,12 +49,14 @@ WHERE id = 'ae8d520f-5b98-411e-81fc-f756a4439e6a'
   AND provider = 'github'
   AND (configuration->>'github_app_installation_id') = '158056492';
 
+-- Guard: fail only if the prod row exists and is still not re-pointed. Fresh replay
+-- databases (CI) do not contain this row, so the guard is a no-op there.
 DO $$
 BEGIN
-  IF NOT EXISTS (
+  IF EXISTS (
     SELECT 1 FROM public.connector_installations
     WHERE id = 'ae8d520f-5b98-411e-81fc-f756a4439e6a'
-      AND (configuration->>'github_app_installation_id') = '173093145'
+      AND (configuration->>'github_app_installation_id') IS DISTINCT FROM '173093145'
   ) THEN
     RAISE EXCEPTION 'github connector row was not re-pointed';
   END IF;
