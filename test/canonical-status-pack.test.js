@@ -55,7 +55,7 @@ function evidence() {
   return {
     memory: {
       ok: true,
-      healthStatus: 'projectos-connected',
+      healthStatus: 'pandora-connected',
       contextState: 'healthy',
       fresh: true,
       approvedRecordIds: ['record-1'],

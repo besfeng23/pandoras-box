@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sanitizeMemoryHealthResponse = sanitizeMemoryHealthResponse;
+exports.isConnectedMemoryStatus = isConnectedMemoryStatus;
 exports.sanitizeMemorySearchResponse = sanitizeMemorySearchResponse;
 const zod_1 = require("zod");
 const NamespaceSchema = zod_1.z.enum(['real_life', 'au']);
@@ -207,6 +208,9 @@ const SearchResponseSchema = zod_1.z.object({
     retrieval_reasoning_summary: zod_1.z.string().max(4000).optional(),
     warnings: zod_1.z.array(zod_1.z.string().max(500)).max(100).default([]),
 }).strip();
+function isConnectedMemoryStatus(status) {
+    return status === "pandora-connected" || status === "projectos-connected";
+}
 function sanitizeMemoryHealthResponse(input) {
     return HealthResponseSchema.parse(input);
 }

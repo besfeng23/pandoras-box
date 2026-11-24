@@ -16,6 +16,7 @@ const memory_js_1 = require("./tools/memory.js");
 const canonical_status_provider_js_1 = require("./projectos/canonical-status-provider.js");
 const worker_plan_context_provider_js_1 = require("./projectos/worker-plan-context-provider.js");
 const aws_bedrock_runtime_js_1 = require("./providers/aws-bedrock-runtime.js");
+const { isConnectedMemoryStatus } = require("./tools/memory-response.js");
 const CANONICAL_MEMORY_ORIGIN = 'https://pandorasbox-memory.vercel.app';
 const CANONICAL_MEMORY_PROJECT_KEY = 'mcpmaster-pandoras-box';
 const MEMORY_HEALTH_TTL_MS = 5 * 60 * 1000;
@@ -81,7 +82,7 @@ function createCanonicalMemoryHealthProbe(environment = process.env, fetchFn = g
                     includeOpenLoops: true,
                 });
                 if (health.ok !== true
-                    || health.status !== 'projectos-connected'
+                    || !isConnectedMemoryStatus(health.status)
                     || health.authentication !== 'vercel_oidc'
                     || search.ok !== true
                     || search.namespace !== 'real_life') {
