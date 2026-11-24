@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 
-export const MEMORY_PROJECT_REF = 'ivmvufhcsezyhczzondn';
+export const MEMORY_PROJECT_REF = 'xyefkykwuppbweabvvmk';
 export const BRIDGE_RPC = 'memory_operations_bridge_v1';
 export const OUTCOME_CONTRACT = 'pandora-operations-model-outcome-v1';
 export const UUID = /^[a-f0-9]{8}-[a-f0-9]{4}-[1-5][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/;

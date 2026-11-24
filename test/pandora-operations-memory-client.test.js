@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const NOW = Date.parse('2026-09-25T18:00:00Z');
 const ids = Array.from({length:9}, (_,i) => `${String(i+1).repeat(8)}-${String(i+1).repeat(4)}-4${String(i+1).repeat(3)}-8${String(i+1).repeat(3)}-${String(i+1).repeat(12)}`);
-const mapping = () => ({organizationId:ids[0],projectId:ids[1],memoryProjectRef:'ivmvufhcsezyhczzondn',
+const mapping = () => ({organizationId:ids[0],projectId:ids[1],memoryProjectRef:'xyefkykwuppbweabvvmk',
   memoryProjectId:ids[2],memoryUserId:ids[3],namespace:'real_life',principalKey:'ops-test-principal',environment:'test'});
 const scope = () => ({organizationId:ids[0],projectId:ids[1]});
 const outcome = () => ({contractVersion:'pandora-operations-model-outcome-v1',sourceRunId:ids[4],
@@ -40,7 +40,7 @@ async function fixture(transform = null, options = {}) {
       canonicalMemoryWritten:false,modelRevisionKnown:body.modelRevision!==null});
     return {data:structuredClone(rows.get(body.sourceRunId)??{found:false,requiresReconciliation:true,canonicalMemoryWritten:false}),error:null};
   };
-  const client={supabaseUrl:'https://ivmvufhcsezyhczzondn.supabase.co',rpc(name,args){
+  const client={supabaseUrl:'https://xyefkykwuppbweabvvmk.supabase.co',rpc(name,args){
     calls.push({name,args:structuredClone(args)});
     const request={abortSignal(signal){this.signal=signal;return this;},then(resolve,reject){return Promise.resolve().then(()=>transform?transform(name,args,server,rows,request.signal):server(name,args)).then(resolve,reject);}};
     return request;
@@ -106,7 +106,7 @@ test('cross-project and cross-organization requests fail before RPC',async()=>{
 });
 test('wrong Memory host, credential URL and unapproved namespace are rejected',async()=>{
   const f=await fixture();
-  for(const url of ['https://jcyqixttuebxqqfkjonq.supabase.co','https://ivmvufhcsezyhczzondn.supabase.co.evil.test','https://user:pass@ivmvufhcsezyhczzondn.supabase.co','http://ivmvufhcsezyhczzondn.supabase.co'])
+  for(const url of ['https://ivmvufhcsezyhczzondn.supabase.co','https://jcyqixttuebxqqfkjonq.supabase.co','https://xyefkykwuppbweabvvmk.supabase.co.evil.test','https://user:pass@xyefkykwuppbweabvvmk.supabase.co','http://xyefkykwuppbweabvvmk.supabase.co'])
     assert.throws(()=>new f.NativeOperationsMemoryClient({client:{...f.client,supabaseUrl:url},mapping:mapping()}));
   assert.throws(()=>new f.NativeOperationsMemoryClient({client:f.client,mapping:{...mapping(),namespace:'au'}}));
 });
