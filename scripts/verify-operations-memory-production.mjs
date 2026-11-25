@@ -7,6 +7,8 @@ import {OUTCOME_CONTRACT} from '../packages/pandora-operations-memory/contracts.
 
 const require=createRequire(import.meta.url);
 const {getVercelOidcToken}=require('@vercel/oidc');
+const {executeMemoryTool}=require('../src/tools/memory.js');
+const {isConnectedMemoryStatus}=require('../src/tools/memory-response.js');
 const proofPath=new URL('../public/operations-memory-canary.json',import.meta.url);
 
 if(process.env.VERCEL_ENV!=='production'){
@@ -27,6 +29,24 @@ const memory=createWorkloadOperationsMemory({
 });
 const scope={organizationId:OPERATIONS_MEMORY_MAPPING.organizationId,projectId:OPERATIONS_MEMORY_MAPPING.projectId};
 const started=Date.now();
+const connectorConfig={
+  baseUrl:'https://pandorasbox-memory.vercel.app',
+  oidcToken:token,
+  allowedNamespaces:[OPERATIONS_MEMORY_MAPPING.namespace],
+  grantedScopes:['memory:health','memory:read'],
+  timeoutMs:20000,
+};
+const projectKey='mcpmaster-pandoras-box';
+const health=await executeMemoryTool('memory.health',{},connectorConfig);
+if (!health.ok || !isConnectedMemoryStatus(health.status)) throw new Error('MEMORY_GATEWAY_HEALTH_FAILED');
+const search=await executeMemoryTool('memory.search',{
+  namespace:OPERATIONS_MEMORY_MAPPING.namespace,
+  projectKey,
+  query:'Pandoras-Box canonical runtime connectivity proof',
+  maxItems:1,
+},connectorConfig);
+if (search.namespace!==OPERATIONS_MEMORY_MAPPING.namespace || search.project_key!==projectKey ||
+    search.project_id!==OPERATIONS_MEMORY_MAPPING.memoryProjectId) throw new Error('MEMORY_GATEWAY_SCOPE_MISMATCH');
 const context=await memory.getTaskContext(scope,{
   intent:'coding_building',
   actionMode:'read_only',
@@ -84,6 +104,7 @@ const proof={
   sourceCommit,
   observedAt:new Date().toISOString(),
   identity:'vercel-workload-oidc',
+  connector:{health:health.status,projectKey,searchVerified:true},
   context:{
     state:context.state,
     authorizationGranted:false,

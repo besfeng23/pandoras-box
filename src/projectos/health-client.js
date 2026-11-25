@@ -13,7 +13,7 @@ async function setProjectOSIntegrationHealth(vercelOidcToken, input, fetchFn = f
         projectKey: zod_1.z.string().regex(/^[a-z0-9][a-z0-9._-]{0,79}$/),
         provider: zod_1.z.string().regex(/^[a-z][a-z0-9_-]{1,63}$/),
         status: StatusSchema,
-        details: zod_1.z.record(zod_1.z.unknown()).optional(),
+        details: zod_1.z.record(zod_1.z.string(), zod_1.z.unknown()).optional(),
         lastEventAt: zod_1.z.string().datetime({ offset: true }).nullable().optional(),
         lastSuccessAt: zod_1.z.string().datetime({ offset: true }).nullable().optional(),
         staleAfter: zod_1.z.string().datetime({ offset: true }).nullable().optional(),

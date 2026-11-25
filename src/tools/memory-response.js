@@ -99,14 +99,22 @@ const ContextPackV2CountsSchema = zod_1.z.object({
 }).strip();
 const ContextPackV2CanonicalRecordSchema = zod_1.z.object({
     id: IdSchema,
-    contentHash: zod_1.z.string().trim().regex(/^[a-f0-9]{64}$/),
-    correlationId: zod_1.z.string().trim().min(1).max(200),
+    contentHash: zod_1.z.string().trim().regex(/^(?:[a-f0-9]{32}|[a-f0-9]{64})$/),
+    correlationId: zod_1.z.string().trim().min(1).max(200).optional(),
+    sourceRepository: zod_1.z.string().max(200).regex(/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/).optional(),
+    sourceCommit: zod_1.z.string().regex(/^[a-f0-9]{40}$/i).optional(),
     effectiveAt: TimestampSchema.nullable(),
     recordType: zod_1.z.string().trim().min(1).max(96),
     summary: LongTextSchema,
     title: ShortTextSchema,
     updatedAt: TimestampSchema,
-}).strip();
+}).strip().refine(record => {
+    // Historical Git-backed rows retain their original content identifier. The enclosing pack still requires SHA-256.
+    return Boolean((record.sourceRepository && record.sourceCommit) ||
+        (record.correlationId && record.contentHash.length === 64));
+}, {
+    message: "Canonical Memory requires a SHA-256 hash and correlation ID or an exact repository and commit",
+});
 const ContextPackV2Schema = zod_1.z.object({
     schemaVersion: zod_1.z.literal('2.0'),
     status: zod_1.z.literal('available'),

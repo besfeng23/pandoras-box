@@ -98,6 +98,23 @@ test("Memory response sanitizer rejects a v2 pack that permits legacy unscoped f
   assert.throws(() => sanitizeMemorySearchResponse(searchPayload(pack)), { name: "ZodError" });
 });
 
+test("a Git-backed record can retain its original provenance without a correlation ID", () => {
+  const pack = governedPack();
+  const record = pack.canonicalMemory[0];
+  delete record.correlationId;
+  record.contentHash = "b".repeat(32);
+  record.sourceRepository = "example/pandoras-box";
+  record.sourceCommit = "a".repeat(40);
+  const parsed = sanitizeMemorySearchResponse(searchPayload(pack));
+  assert.deepEqual(parsed.latest_context_pack.canonicalMemory[0], record);
+  for (const invalid of ["main", undefined]) {
+    record.sourceCommit = invalid;
+    assert.throws(() => sanitizeMemorySearchResponse(searchPayload(pack)), { name: "ZodError" });
+  }
+  record.correlationId = "corr-2";
+  assert.throws(() => sanitizeMemorySearchResponse(searchPayload(pack)), { name: "ZodError" });
+});
+
 test("Memory response sanitizer rejects v2 pack without read authorization", () => {
   const pack = governedPack();
   pack.authorization.canRead = false;

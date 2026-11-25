@@ -14,7 +14,7 @@ const ResourceSchema = zod_1.z.object({
     environment: zod_1.z.string().nullable().optional(),
     canonicalUrl: zod_1.z.string().nullable().optional(),
     bindingState: zod_1.z.enum(['verified', 'degraded', 'missing', 'not_required', 'quarantined']),
-    configuration: zod_1.z.record(zod_1.z.unknown()),
+    configuration: zod_1.z.record(zod_1.z.string(), zod_1.z.unknown()),
 });
 const TaskSchema = zod_1.z.object({
     id: zod_1.z.string().uuid(),
@@ -45,7 +45,7 @@ const RegistryResponseSchema = zod_1.z.object({
     ok: zod_1.z.literal(true),
     registry: zod_1.z.object({
         organizationId: zod_1.z.string().uuid(),
-        policy: zod_1.z.record(zod_1.z.unknown()).nullable(),
+        policy: zod_1.z.record(zod_1.z.string(), zod_1.z.unknown()).nullable(),
         projects: zod_1.z.array(ProjectSchema),
     }),
 });
