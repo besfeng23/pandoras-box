@@ -126,6 +126,16 @@ test('incomplete or contradictory vulnerability entries cannot hide an advisory'
   }
 });
 
+test('a lower-severity path can reference a package with a higher-severity finding in another installed version', async () => {
+  const { evaluateAuditReport, parseAuditProcessResult } = await policy;
+  const report = auditReport({
+    indirect: { severity: 'moderate', via: ['shared'] },
+    shared: { severity: 'high', via: [{ severity: 'high', url: advisory }] },
+  });
+  const parsed = parseAuditProcessResult({ status: 1, stdout: JSON.stringify(report) });
+  assert.deepEqual(evaluateAuditReport(parsed, currentDate).blocked, ['shared']);
+});
+
 test('signals, execution failures and unexpected statuses fail before audit interpretation', async () => {
   const { parseAuditProcessResult } = await policy;
   for (const result of [
