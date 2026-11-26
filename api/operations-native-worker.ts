@@ -24,8 +24,6 @@ const REASONING_UUID_PATTERN =
 const REPOSITORY = "pandora-rvw-314296438-20260820/pandoras-box";
 const OPERATIONS_MEMORY_REF = "xyefkykwuppbweabvvmk";
 const OPERATIONS_MEMORY_URL = `https://${OPERATIONS_MEMORY_REF}.supabase.co/functions/v1/pandora-memory-bridge`;
-// Growth uses a separate action contract from the Operations bridge.
-const GROWTH_MEMORY_URL = "https://ivmvufhcsezyhczzondn.supabase.co/functions/v1/pandora-memory-bridge";
 const MEMORY_PROJECT_ID = "7c686cbd-d968-49d5-86cc-918f5e777bd2";
 const BUILDER_ID = "pandora-native-builder-v1";
 const GENERIC_SOURCE_FANOUT = 4;
@@ -140,12 +138,61 @@ async function memoryContextCanary(oidc: string) {
 }
 
 
-async function drainGrowthLearning(_oidc: string) {
-  // PR #149 does not yet implement the separate growth_learning action.
-  // Leave outbox rows unclaimed; never retry against retired Sydney.
+async function drainGrowthLearning(oidc: string) {
+  if (process.env.PANDORA_GROWTH_LEARNING_TOKYO_ENABLED !== "true") {
+    return { state: "deferred", reason: "GROWTH_LEARNING_TOKYO_ADAPTER_PENDING" };
+  }
+  const claimed = await control(oidc, { action: "growth_learning_claim" });
+  if (claimed?.state !== "claimed") return { state: "idle" };
+  const outboxId = String(claimed.outboxId || "");
+  const claimToken = String(claimed.claimToken || "");
+  if (!REASONING_UUID_PATTERN.test(outboxId) || !REASONING_UUID_PATTERN.test(claimToken)
+      || !claimed.payload || typeof claimed.payload !== "object" || Array.isArray(claimed.payload)) {
+    throw new Error("GROWTH_LEARNING_CLAIM_INVALID");
+  }
+
+  let status = 503;
+  let content = "{}";
+  let error: string | null = null;
+  try {
+    const memoryResponse = await fetch(OPERATIONS_MEMORY_URL, {
+      method: "POST",
+      headers: {
+        "x-pandora-vercel-oidc": oidc,
+        "content-type": "application/json",
+        accept: "application/json",
+      },
+      body: JSON.stringify({ action: "growth_learning", payload: claimed.payload }),
+      redirect: "error",
+      signal: AbortSignal.timeout(20_000),
+    });
+    status = memoryResponse.status;
+    const body = await readBoundedJson(memoryResponse, 64_000);
+    const receipt = body?.data && typeof body.data === "object" && !Array.isArray(body.data)
+      ? body.data
+      : body;
+    content = JSON.stringify(receipt || {});
+    if (!memoryResponse.ok || body?.ok !== true) {
+      error = String(body?.error || "GROWTH_LEARNING_MEMORY_REJECTED").slice(0, 1000);
+    }
+  } catch (cause: any) {
+    status = 503;
+    error = String(cause?.message || "GROWTH_LEARNING_MEMORY_UNAVAILABLE").slice(0, 1000);
+  }
+
+  const acknowledged = await control(oidc, {
+    action: "growth_learning_ack",
+    outboxId,
+    claimToken,
+    httpStatus: status,
+    content,
+    error,
+  });
   return {
-    state: "deferred",
-    reason: "GROWTH_LEARNING_TOKYO_ADAPTER_PENDING",
+    state: acknowledged?.state || "unknown",
+    delivered: acknowledged?.delivered === true,
+    outboxId,
+    attempt: acknowledged?.attempt ?? claimed?.attempt ?? null,
   };
 }
 

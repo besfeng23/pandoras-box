@@ -69,6 +69,7 @@ async function withApp(fetchFn, fn, role = "owner") {
     environment: {
       SUPABASE_URL: "https://primary.supabase.test",
       SUPABASE_SERVICE_ROLE_KEY: "service-role-fixture",
+      PANDORA_GROWTH_CONTEXT_TOKYO_ENABLED: "true",
     },
     fetchFn,
     resolveOidc: async () => "vercel-workload-oidc-fixture",

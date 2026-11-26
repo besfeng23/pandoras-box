@@ -8,7 +8,8 @@ const MODEL = Deno.env.get("PANDORA_PROJECT_SPEC_MODEL") || "gemini-3.5-flash-li
 const COMPILER_VERSION = "project-spec-compiler-v5";
 const MAX_BODY_BYTES = 2048;
 const MAX_MODEL_TEXT_BYTES = 262144;
-const MEMORY_PLANNING_URL = "https://ivmvufhcsezyhczzondn.supabase.co/functions/v1/pandora-projectos-planning-context";
+const MEMORY_PLANNING_URL = "https://xyefkykwuppbweabvvmk.supabase.co/functions/v1/pandora-projectos-planning-context";
+const MEMORY_PLANNING_TOKYO_ENABLED = Deno.env.get("PANDORA_PROJECTOS_PLANNING_TOKYO_ENABLED") === "true";
 const MEMORY_PLANNING_PURPOSE = "projectos-planning-context-v1";
 
 type JsonRecord = Record<string, unknown>;
@@ -222,6 +223,7 @@ function planningHighlights(value: unknown) {
 }
 
 async function prepareMemoryContext(admin: ReturnType<typeof adminClient>, intentId: string, decisionType: "project_spec" | "build") {
+  if (!MEMORY_PLANNING_TOKYO_ENABLED) throw new Error("MEMORY_CONTEXT_UNAVAILABLE");
   const requestId = crypto.randomUUID();
   const { data: signedData, error: signedError } = await admin.rpc("pandora_sign_project_memory_planning_request_v2", {
     p_source_intent_id: intentId,

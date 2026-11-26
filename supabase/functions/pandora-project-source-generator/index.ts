@@ -1,4 +1,3 @@
-
 import "jsr:@supabase/functions-js@2.4.5/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2.57.2";
 
@@ -14,7 +13,8 @@ const MAX_BASE_CONTEXT_BYTES = 120 * 1024;
 const MAX_STREAM_FRAME_BUFFER_BYTES = 256 * 1024;
 const MIN_STATIC_INDEX_BYTES = 1024;
 const BUCKET = "pandora-build-artifacts";
-const MEMORY_PLANNING_URL = "https://ivmvufhcsezyhczzondn.supabase.co/functions/v1/pandora-projectos-planning-context";
+const MEMORY_PLANNING_URL = "https://xyefkykwuppbweabvvmk.supabase.co/functions/v1/pandora-projectos-planning-context";
+const MEMORY_PLANNING_TOKYO_ENABLED = Deno.env.get("PANDORA_PROJECTOS_PLANNING_TOKYO_ENABLED") === "true";
 const MEMORY_PLANNING_PURPOSE = "projectos-planning-context-v1";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const SAFE_PATH = /^(?!\.)(?!.*(?:^|\/)\.\.?(?:\/|$))[A-Za-z0-9_@+.-]+(?:\/[A-Za-z0-9_@+.-]+)*$/;
@@ -79,6 +79,7 @@ function planningHighlights(value: unknown) {
 }
 
 async function prepareMemoryContext(admin: ReturnType<typeof adminClient>, intentId: string) {
+  if (!MEMORY_PLANNING_TOKYO_ENABLED) throw new Error("MEMORY_CONTEXT_UNAVAILABLE");
   if (!UUID.test(intentId)) throw new Error("MEMORY_CONTEXT_REJECTED");
   const requestId = crypto.randomUUID();
   const { data: signedData, error: signedError } = await admin.rpc("pandora_sign_project_memory_planning_request_v2", {
