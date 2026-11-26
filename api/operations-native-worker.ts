@@ -140,58 +140,12 @@ async function memoryContextCanary(oidc: string) {
 }
 
 
-async function drainGrowthLearning(oidc: string) {
-  const claimed = await control(oidc, { action: "growth_learning_claim" });
-  if (claimed?.state !== "claimed") return { state: "idle" };
-  const outboxId = String(claimed.outboxId || "");
-  const claimToken = String(claimed.claimToken || "");
-  if (!REASONING_UUID_PATTERN.test(outboxId) || !REASONING_UUID_PATTERN.test(claimToken)
-      || !claimed.payload || typeof claimed.payload !== "object" || Array.isArray(claimed.payload)) {
-    throw new Error("GROWTH_LEARNING_CLAIM_INVALID");
-  }
-
-  let status = 503;
-  let content = "{}";
-  let error: string | null = null;
-  try {
-    const memoryResponse = await fetch(GROWTH_MEMORY_URL, {
-      method: "POST",
-      headers: {
-        "x-pandora-vercel-oidc": oidc,
-        "content-type": "application/json",
-        accept: "application/json",
-      },
-      body: JSON.stringify({ action: "growth_learning", payload: claimed.payload }),
-      redirect: "error",
-      signal: AbortSignal.timeout(20_000),
-    });
-    status = memoryResponse.status;
-    const body = await readBoundedJson(memoryResponse, 64_000);
-    const receipt = body?.data && typeof body.data === "object" && !Array.isArray(body.data)
-      ? body.data
-      : body;
-    content = JSON.stringify(receipt || {});
-    if (!memoryResponse.ok || body?.ok !== true) {
-      error = String(body?.error || "GROWTH_LEARNING_MEMORY_REJECTED").slice(0, 1000);
-    }
-  } catch (cause: any) {
-    status = 503;
-    error = String(cause?.message || "GROWTH_LEARNING_MEMORY_UNAVAILABLE").slice(0, 1000);
-  }
-
-  const acknowledged = await control(oidc, {
-    action: "growth_learning_ack",
-    outboxId,
-    claimToken,
-    httpStatus: status,
-    content,
-    error,
-  });
+async function drainGrowthLearning(_oidc: string) {
+  // PR #149 does not yet implement the separate growth_learning action.
+  // Leave outbox rows unclaimed; never retry against retired Sydney.
   return {
-    state: acknowledged?.state || "unknown",
-    delivered: acknowledged?.delivered === true,
-    outboxId,
-    attempt: acknowledged?.attempt ?? claimed?.attempt ?? null,
+    state: "deferred",
+    reason: "GROWTH_LEARNING_TOKYO_ADAPTER_PENDING",
   };
 }
 

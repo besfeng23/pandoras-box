@@ -26,9 +26,28 @@ The Vercel project ID and project name remain unchanged so the existing workload
 Pandora intentionally uses two Supabase projects with separate responsibilities:
 
 - Primary application/control plane: `jcyqixttuebxqqfkjonq`
-- Pandora Memory/runtime boundary: `ivmvufhcsezyhczzondn`
+- Pandora Memory/runtime boundary: `xyefkykwuppbweabvvmk`
 
-Do not collapse these projects into one database. Application and Edge Function changes for the primary control plane belong to `jcyqixttuebxqqfkjonq`; Memory-specific schema and runtime changes belong to `ivmvufhcsezyhczzondn` and its source repository.
+Keep the control plane separate. Application authorization and control operations remain on `jcyqixttuebxqqfkjonq`.
+
+Pandora Memory runs on `xyefkykwuppbweabvvmk`, using the isolated
+`pandora_memory_native` schema and `pandora_memory_runtime` role.
+
+The Tokyo project also hosts existing PLP and Pandora Connect workloads.
+Their existing tables, schemas, RLS policies and grants must remain unchanged.
+The Memory runtime role must have zero table privileges on `public`,
+`plp_runtime` and `pandora_connect`, and no schema usage on the latter
+two schemas.
+
+This is logical schema/role isolation within a shared Supabase project,
+not physical database isolation. Privileged database administrators
+retain their normal administrative authority.
+
+The former Sydney Memory project `ivmvufhcsezyhczzondn` is not a runtime
+target. Do not unblock it or send new Memory requests to it.
+
+Growth Learning is a separate action contract. Its outbox remains
+unclaimed until a reviewed Tokyo-compatible adapter is available.
 
 Canonical governed Edge Functions defined by repository configuration must keep their declared JWT boundary. `mcpmaster-supabase-control` is the documented custom-workload-auth exception and validates Vercel OIDC in the function path rather than using a user JWT at the Supabase gateway.
 
