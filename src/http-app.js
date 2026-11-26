@@ -37,12 +37,12 @@ const runtimeConfigSchema = zod_1.z.object({
 });
 const executionSchema = zod_1.z.object({
     tool: zod_1.z.string().min(1),
-    args: zod_1.z.record(zod_1.z.unknown()).optional().default({}),
+    args: zod_1.z.record(zod_1.z.string(), zod_1.z.unknown()).optional().default({}),
     dryRun: zod_1.z.boolean().optional().default(false),
 });
 const planInputSchema = zod_1.z.object({
     tool: zod_1.z.string().min(1),
-    args: zod_1.z.record(zod_1.z.unknown()).optional().default({}),
+    args: zod_1.z.record(zod_1.z.string(), zod_1.z.unknown()).optional().default({}),
 });
 const planReferenceSchema = zod_1.z.object({
     planId: zod_1.z.string().uuid(),

@@ -22,7 +22,8 @@ const REASONING_TASK_PATTERN = /^[A-Za-z0-9][A-Za-z0-9_.:-]{0,119}$/;
 const REASONING_UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const REPOSITORY = "pandora-rvw-314296438-20260820/pandoras-box";
-const MEMORY_URL = "https://ivmvufhcsezyhczzondn.supabase.co/functions/v1/pandora-memory-bridge";
+const OPERATIONS_MEMORY_REF = "xyefkykwuppbweabvvmk";
+const OPERATIONS_MEMORY_URL = `https://${OPERATIONS_MEMORY_REF}.supabase.co/functions/v1/pandora-memory-bridge`;
 const MEMORY_PROJECT_ID = "7c686cbd-d968-49d5-86cc-918f5e777bd2";
 const BUILDER_ID = "pandora-native-builder-v1";
 const GENERIC_SOURCE_FANOUT = 4;
@@ -93,7 +94,7 @@ async function githubJson(path: string) {
 }
 
 async function memoryContextCanary(oidc: string) {
-  const response = await fetch(MEMORY_URL, {
+  const response = await fetch(OPERATIONS_MEMORY_URL, {
     method: "POST",
     headers: {
       "x-pandora-vercel-oidc": oidc,
@@ -123,7 +124,7 @@ async function memoryContextCanary(oidc: string) {
     !response.ok || payload?.ok !== true ||
     payload?.projectId !== MEMORY_PROJECT_ID ||
     payload?.namespace !== "real_life" ||
-    payload?.memoryProjectRef !== "ivmvufhcsezyhczzondn" ||
+    payload?.memoryProjectRef !== OPERATIONS_MEMORY_REF ||
     payload?.data?.kind !== "task_context" ||
     payload?.data?.authorizationGranted !== false
   ) throw new Error("OPS_MEMORY_CONTEXT_CANARY_FAILED");
@@ -138,6 +139,9 @@ async function memoryContextCanary(oidc: string) {
 
 
 async function drainGrowthLearning(oidc: string) {
+  if (process.env.PANDORA_GROWTH_LEARNING_TOKYO_ENABLED !== "true") {
+    return { state: "deferred", reason: "GROWTH_LEARNING_TOKYO_ADAPTER_PENDING" };
+  }
   const claimed = await control(oidc, { action: "growth_learning_claim" });
   if (claimed?.state !== "claimed") return { state: "idle" };
   const outboxId = String(claimed.outboxId || "");
@@ -151,7 +155,7 @@ async function drainGrowthLearning(oidc: string) {
   let content = "{}";
   let error: string | null = null;
   try {
-    const memoryResponse = await fetch(MEMORY_URL, {
+    const memoryResponse = await fetch(OPERATIONS_MEMORY_URL, {
       method: "POST",
       headers: {
         "x-pandora-vercel-oidc": oidc,

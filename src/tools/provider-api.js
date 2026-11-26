@@ -40,7 +40,7 @@ const QueryValueSchema = zod_1.z.union([
     zod_1.z.boolean(),
     zod_1.z.array(zod_1.z.union([zod_1.z.string(), zod_1.z.number().finite(), zod_1.z.boolean()])).max(100),
 ]);
-const QuerySchema = zod_1.z.record(QueryValueSchema).default({});
+const QuerySchema = zod_1.z.record(zod_1.z.string(), QueryValueSchema).default({});
 const GitHubBaseArgsSchema = zod_1.z.object({
     owner: zod_1.z.string().min(1),
     repo: zod_1.z.string().min(1),

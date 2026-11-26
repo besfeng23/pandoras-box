@@ -68,10 +68,10 @@ async function recommendProjectOSAgents(vercelOidcToken, projectKey, role = 'bui
 }
 async function planProjectOSIntake(vercelOidcToken, intakeId, plan) {
     const parsed = zod_1.z.object({
-        phases: zod_1.z.array(zod_1.z.record(zod_1.z.unknown())).max(100).optional(),
-        tasks: zod_1.z.array(zod_1.z.record(zod_1.z.unknown())).min(1).max(500),
-        dependencies: zod_1.z.array(zod_1.z.record(zod_1.z.unknown())).max(1000).optional(),
-        analysis: zod_1.z.record(zod_1.z.unknown()).optional(),
+        phases: zod_1.z.array(zod_1.z.record(zod_1.z.string(), zod_1.z.unknown())).max(100).optional(),
+        tasks: zod_1.z.array(zod_1.z.record(zod_1.z.string(), zod_1.z.unknown())).min(1).max(500),
+        dependencies: zod_1.z.array(zod_1.z.record(zod_1.z.string(), zod_1.z.unknown())).max(1000).optional(),
+        analysis: zod_1.z.record(zod_1.z.string(), zod_1.z.unknown()).optional(),
         source: zod_1.z.string().max(160).optional(),
     }).passthrough().parse(plan);
     return request(vercelOidcToken, {
@@ -82,8 +82,8 @@ async function planProjectOSIntake(vercelOidcToken, intakeId, plan) {
 }
 async function applyProjectOSManifest(vercelOidcToken, manifest, createdBy) {
     const parsed = zod_1.z.object({
-        policy: zod_1.z.record(zod_1.z.unknown()).optional(),
-        projects: zod_1.z.array(zod_1.z.record(zod_1.z.unknown())).min(1).max(250),
+        policy: zod_1.z.record(zod_1.z.string(), zod_1.z.unknown()).optional(),
+        projects: zod_1.z.array(zod_1.z.record(zod_1.z.string(), zod_1.z.unknown())).min(1).max(250),
     }).passthrough().parse(manifest);
     return request(vercelOidcToken, {
         action: 'bootstrap_apply',

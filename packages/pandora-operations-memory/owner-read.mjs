@@ -1,5 +1,5 @@
 
-import {exact,normalizeContextRequest,requireThat,MemoryIntegrationError,serialized} from './contracts.mjs';
+import {MEMORY_PROJECT_REF,exact,normalizeContextRequest,requireThat,MemoryIntegrationError,serialized} from './contracts.mjs';
 
 const CORE_SUPABASE_URL = 'https://jcyqixttuebxqqfkjonq.supabase.co';
 const CORE_AUTHORIZATION_URL = `${CORE_SUPABASE_URL}/rest/v1/rpc/pandora_core_authorize_memory_v1`;
@@ -93,7 +93,7 @@ export class CoreOwnerMemoryAuthorizer {
 
 export const OPERATIONS_MEMORY_MAPPING=Object.freeze({
  organizationId:'2270b266-59da-4c39-bfd9-9f8d08352af0',projectId:'ee282126-3f61-4058-8c92-2fedbfcecf1f',
- memoryProjectRef:'ivmvufhcsezyhczzondn',memoryProjectId:'7c686cbd-d968-49d5-86cc-918f5e777bd2',
+ memoryProjectRef:MEMORY_PROJECT_REF,memoryProjectId:'7c686cbd-d968-49d5-86cc-918f5e777bd2',
  memoryUserId:'0a436417-517f-461f-819f-08f66899cdda',namespace:'real_life',principalKey:'pandora-mcpmaster-production',environment:'production',
 });
 /** Read-only owner entrypoint; it cannot submit, approve or invent an outcome. */

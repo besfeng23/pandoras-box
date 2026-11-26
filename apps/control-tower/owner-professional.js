@@ -176,7 +176,7 @@ function professionalMemory() {
 
   const approved = Array.isArray(memory.approvedRecordIds) ? memory.approvedRecordIds : [];
   const conflicts = Array.isArray(memory.conflicts) ? memory.conflicts : [];
-  const connected = memory.healthStatus === 'projectos-connected';
+  const connected = ['pandora-connected', 'projectos-connected'].includes(memory.healthStatus);
   const fresh = memory.fresh === true && memory.contextState === 'healthy';
   const body = `
     <section class="professional-metrics-grid" aria-label="Memory authority overview">

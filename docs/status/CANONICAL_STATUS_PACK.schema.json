@@ -470,7 +470,7 @@
             "memory": {
               "type": "object",
               "properties": {
-                "ok": { "const": true }, "healthStatus": { "const": "projectos-connected" }, "contextState": { "const": "healthy" },
+                "ok": { "const": true }, "healthStatus": { "enum": ["pandora-connected", "projectos-connected"] }, "contextState": { "const": "healthy" },
                 "fresh": { "const": true }, "approvedRecordIds": { "type": "array", "minItems": 1 }, "conflicts": { "type": "array", "maxItems": 0 }
               }
             },

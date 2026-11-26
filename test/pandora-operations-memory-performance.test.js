@@ -5,7 +5,7 @@ const assert=await import('node:assert/strict');
 const {NativeOperationsPerformanceClient,PERFORMANCE_RPC,PERFORMANCE_CLASSES}=await import('../packages/pandora-operations-memory/performance-client.mjs');
 const NOW=Date.now(), iso=delta=>new Date(NOW+delta).toISOString();
 const mapping={organizationId:'11111111-1111-4111-8111-111111111111',projectId:'22222222-2222-4222-8222-222222222222',
- memoryProjectRef:'ivmvufhcsezyhczzondn',memoryProjectId:'33333333-3333-4333-8333-333333333333',
+ memoryProjectRef:'xyefkykwuppbweabvvmk',memoryProjectId:'33333333-3333-4333-8333-333333333333',
  memoryUserId:'44444444-4444-4444-8444-444444444444',namespace:'real_life',principalKey:'ops-perf-test',environment:'test'};
 const scope={organizationId:mapping.organizationId,projectId:mapping.projectId};
 const row=()=>({memoryItemId:'66666666-6666-4666-8666-666666666666',recordType:'provider_performance',canonStatus:'hard_canon',
@@ -23,7 +23,7 @@ function envelope(args) {
  authorizationGranted:false,providerApprovalGranted:false};
 }
 function make(change=()=>{},options={}) {
- const calls=[]; const client={supabaseUrl:'https://ivmvufhcsezyhczzondn.supabase.co',rpc(name,args) {
+ const calls=[]; const client={supabaseUrl:'https://xyefkykwuppbweabvvmk.supabase.co',rpc(name,args) {
   calls.push({name,args}); const data=envelope(args); change(data,args); return Promise.resolve({data});
  }};
  return {calls,transport:client,reader:new NativeOperationsPerformanceClient({client,mapping,clock:()=>NOW,...options})};
@@ -93,8 +93,8 @@ test('foreign source scope is denied before transport',async()=>{const {reader,c
  await assert.rejects(reader.getPerformance({...scope,projectId:mapping.memoryProjectId},{taskClass:'complex_coding'}),/SOURCE_SCOPE_DENIED/);
  assert.equal(calls.length,0);
 });
-for(const url of ['http://ivmvufhcsezyhczzondn.supabase.co','https://example.test','https://ivmvufhcsezyhczzondn.supabase.co/?q=1',
- 'https://user:pass@ivmvufhcsezyhczzondn.supabase.co','https://ivmvufhcsezyhczzondn.supabase.co/rest/v1']) {
+for(const url of ['http://xyefkykwuppbweabvvmk.supabase.co','https://example.test','https://xyefkykwuppbweabvvmk.supabase.co/?q=1',
+ 'https://user:pass@xyefkykwuppbweabvvmk.supabase.co','https://xyefkykwuppbweabvvmk.supabase.co/rest/v1']) {
  test(`rejects unexpected client target ${url}`,()=>{assert.throws(()=>new NativeOperationsPerformanceClient({
   client:{supabaseUrl:url,rpc(){}},mapping}),/TARGET_DENIED/);});
 }
@@ -128,7 +128,7 @@ test('exact native SQL and real client agree on approved history and denial', {s
  const db=new PGlite();
  try {
   await db.exec(readFileSync(process.env.PANDORA_PERFORMANCE_SQL,'utf8'));
-  const client={supabaseUrl:'https://ivmvufhcsezyhczzondn.supabase.co',async rpc(name,a) {
+  const client={supabaseUrl:'https://xyefkykwuppbweabvvmk.supabase.co',async rpc(name,a) {
    assert.equal(name,PERFORMANCE_RPC);
    try {return {data:(await db.query('select public.memory_operations_performance_v1($1::uuid,$2,$3::uuid,$4,$5,$6::jsonb) as payload',
     [a.p_memory_user_id,a.p_namespace,a.p_project_id,a.p_principal_key,a.p_environment,JSON.stringify(a.p_request)])).rows[0].payload};}

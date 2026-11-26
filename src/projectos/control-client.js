@@ -89,7 +89,7 @@ class ProjectOSControlClient {
             deliveryId: zod_1.z.string().min(1).max(256),
             eventType: zod_1.z.string().min(1).max(160),
             payloadHash: HashSchema,
-            payloadRedacted: zod_1.z.record(zod_1.z.unknown()).optional(),
+            payloadRedacted: zod_1.z.record(zod_1.z.string(), zod_1.z.unknown()).optional(),
             externalCreatedAt: zod_1.z.string().datetime({ offset: true }).nullable().optional(),
         }).parse(input);
         const payload = await this.request(vercelOidcToken, {
@@ -111,7 +111,7 @@ class ProjectOSControlClient {
             sourceUrl: zod_1.z.string().url().nullable().optional(),
             headSha: FullShaSchema.nullable().optional(),
             verdict: zod_1.z.string().max(160).nullable().optional(),
-            payloadRedacted: zod_1.z.record(zod_1.z.unknown()).optional(),
+            payloadRedacted: zod_1.z.record(zod_1.z.string(), zod_1.z.unknown()).optional(),
         }).parse(input);
         const payload = await this.request(vercelOidcToken, {
             action: 'evidence_record',
@@ -132,13 +132,13 @@ class ProjectOSControlClient {
             projectKey: ProjectKeySchema,
             taskKey: zod_1.z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/),
             success: zod_1.z.boolean(),
-            planned: zod_1.z.record(zod_1.z.unknown()).optional(),
-            actual: zod_1.z.record(zod_1.z.unknown()).optional(),
+            planned: zod_1.z.record(zod_1.z.string(), zod_1.z.unknown()).optional(),
+            actual: zod_1.z.record(zod_1.z.string(), zod_1.z.unknown()).optional(),
             qualityScore: zod_1.z.number().min(0).max(100).nullable().optional(),
             durationSeconds: zod_1.z.number().int().nonnegative().nullable().optional(),
             repairAttempts: zod_1.z.number().int().nonnegative().optional(),
             deploymentResult: zod_1.z.string().max(160).nullable().optional(),
-            impactMetrics: zod_1.z.record(zod_1.z.unknown()).optional(),
+            impactMetrics: zod_1.z.record(zod_1.z.string(), zod_1.z.unknown()).optional(),
             agentObservations: zod_1.z.array(zod_1.z.unknown()).max(100).optional(),
             lessons: zod_1.z.array(zod_1.z.unknown()).max(100).optional(),
         }).parse(input);

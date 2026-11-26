@@ -71,11 +71,13 @@ test("control bridge exposes only fixed nonce consumption",()=>{
   assert.match(control,/p_project_id: OPERATIONS_PROJECT_ID/);
 });
 
-test("native wake proves Vercel workload identity against the Operations-only Memory endpoint",()=>{
-  assert.match(worker,/MEMORY_URL = "https:\/\/ivmvufhcsezyhczzondn\.supabase\.co\/functions\/v1\/pandora-memory-bridge"/);
+test("native wake proves Vercel workload identity against the Operations-only Memory endpoint",async()=>{
+  const {MEMORY_PROJECT_REF} = await import('../packages/pandora-operations-memory/contracts.mjs');
+  assert.ok(worker.includes('const OPERATIONS_MEMORY_REF = "'+MEMORY_PROJECT_REF+'";'));
+  assert.ok(worker.includes('fetch(OPERATIONS_MEMORY_URL,'));
   assert.match(worker,/x-pandora-vercel-oidc/);
   assert.match(worker,/operation: "context"/);
   assert.match(worker,/authorizationGranted !== false/);
-  assert.match(worker,/memoryProjectRef !== "ivmvufhcsezyhczzondn"/);
+  assert.match(worker,/memoryProjectRef !== OPERATIONS_MEMORY_REF/);
   assert.doesNotMatch(worker,/memory\.context|payload\.data\.context/);
 });

@@ -9,7 +9,7 @@ const SOURCE_ORGANIZATION_ID = "2270b266-59da-4c39-bfd9-9f8d08352af0";
 const SOURCE_PROJECT_ID = "ee282126-3f61-4058-8c92-2fedbfcecf1f";
 const MEMORY_PROJECT_ID = "7c686cbd-d968-49d5-86cc-918f5e777bd2";
 const MEMORY_PROJECT_KEY = "mcpmaster-pandoras-box";
-const MEMORY_BRIDGE_URL = "https://ivmvufhcsezyhczzondn.supabase.co/functions/v1/pandora-memory-bridge";
+const MEMORY_BRIDGE_URL = "https://xyefkykwuppbweabvvmk.supabase.co/functions/v1/pandora-memory-bridge";
 
 class GrowthMemoryError extends Error {
   constructor(status, code) {
@@ -200,6 +200,11 @@ function createPandoraGrowthMemoryRouter(options = {}) {
 
       const oidc = await oidcResolver();
       if (!oidc) throw new GrowthMemoryError(503, "growth_memory_identity_unavailable");
+
+      if (environment.PANDORA_GROWTH_CONTEXT_TOKYO_ENABLED !== "true") {
+        throw new GrowthMemoryError(503, "growth_memory_unavailable");
+      }
+
       const memoryResponse = await fetchFn(MEMORY_BRIDGE_URL, {
         method: "POST",
         headers: {

@@ -40,8 +40,11 @@ function assertAuditReport(report) {
   }
   for (const vulnerability of Object.values(vulnerabilities)) {
     for (const via of vulnerability.via) {
-      const severity = typeof via === 'string' ? vulnerabilities[via].severity : via.severity;
-      if (SEVERITIES.indexOf(severity) > SEVERITIES.indexOf(vulnerability.severity)) invalid();
+      // A named dependency entry aggregates all installed versions; its
+      // highest advisory may not affect the instance in this dependency chain.
+      // Direct advisories still have to agree with their package's severity.
+      if (typeof via !== 'string'
+        && SEVERITIES.indexOf(via.severity) > SEVERITIES.indexOf(vulnerability.severity)) invalid();
     }
   }
   const summary = report.metadata.vulnerabilities;

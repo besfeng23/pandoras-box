@@ -6,7 +6,7 @@ const test = require("node:test");
 const { executeMemoryTool } = require("../dist/tools/memory.js");
 const {
   createCanonicalMemoryHealthProbe,
-} = require("../dist/projectos-container-server.js");
+} = require("../dist/pandora-container-server.js");
 const {
   PandoraPlanMemoryContextProvider,
 } = require("../dist/runtime/plan-memory-context.js");
@@ -196,7 +196,7 @@ test("canonical Memory health probe forwards the exact project key", async () =>
         return jsonResponse({
           ok: true,
           project: "pandora-memory-engine",
-          status: "projectos-connected",
+          status: "pandora-connected",
           context_pack_hydration: "active",
           daily_context_pack: "scheduled_15m",
           post_task_learning: "review_gated",

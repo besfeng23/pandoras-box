@@ -2,6 +2,7 @@
 
 const { createHash } = require("node:crypto");
 
+const { isConnectedMemoryStatus } = require("../tools/memory-response.js");
 const CANONICAL_REPOSITORY = "pandora-rvw-314296438-20260820/pandoras-box";
 const TRUSTED_EXTERNAL_REVIEW_APP_ID = 4785021;
 const TRUSTED_EXTERNAL_REVIEW_PROVIDER_CONTEXT = "external-review";
@@ -217,7 +218,7 @@ function buildCanonicalStatusPack(input) {
     && triage.decisions.length === triage.total
     && github.triageExactHeadMatches === true;
   const memoryCurrent = memory.ok === true
-    && memory.healthStatus === "projectos-connected"
+    && isConnectedMemoryStatus(memory.healthStatus)
     && memory.contextState === "healthy"
     && memory.fresh === true
     && Array.isArray(memory.approvedRecordIds)

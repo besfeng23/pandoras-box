@@ -37,10 +37,10 @@ async function invoke(options = {}) {
   const fetch = async (url, input) => {
     const payload = JSON.parse(input.body);
     calls.push({ url: String(url), payload, headers: input.headers });
-    if (String(url).includes('/pandora-memory-bridge')) {
+    if (String(url) === 'https://xyefkykwuppbweabvvmk.supabase.co/functions/v1/pandora-memory-bridge') {
       return new Response(JSON.stringify({
         ok: true, projectId: '7c686cbd-d968-49d5-86cc-918f5e777bd2',
-        namespace: 'real_life', memoryProjectRef: 'ivmvufhcsezyhczzondn',
+        namespace: 'real_life', memoryProjectRef: 'xyefkykwuppbweabvvmk',
         data: { kind: 'task_context', authorizationGranted: false },
       }));
     }

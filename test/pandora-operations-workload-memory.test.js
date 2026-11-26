@@ -4,11 +4,11 @@ const test=require('node:test');const assert=require('node:assert/strict');
 const modules=Promise.all([import('../packages/pandora-operations-memory/workload-rpc.mjs'),import('../packages/pandora-operations-memory/owner-read.mjs'),import('../packages/pandora-operations-inference/vercel-runtime.mjs')]);
 const token=()=>['fixture'.repeat(12),'body'.repeat(15),'signature'.repeat(9)].join('.');
 const args=m=>({p_memory_user_id:m.memoryUserId,p_namespace:m.namespace,p_project_id:m.memoryProjectId,p_principal_key:m.principalKey,p_environment:m.environment,p_operation:'context',p_payload:{}});
-const success=b=>Response.json({ok:true,requestId:b.requestId,operation:b.operation,projectId:b.projectId,namespace:b.namespace,memoryProjectRef:'ivmvufhcsezyhczzondn',data:{fixture:true}});
+const success=b=>Response.json({ok:true,requestId:b.requestId,operation:b.operation,projectId:b.projectId,namespace:b.namespace,memoryProjectRef:'xyefkykwuppbweabvvmk',data:{fixture:true}});
 async function transport(fetchFn,extra={}){const [a,b]=await modules;return new a.WorkloadOperationsMemoryRpc({mapping:b.OPERATIONS_MEMORY_MAPPING,resolveWorkloadToken:async()=>token(),fetchFn,...extra});}
 for(const operation of ['context','propose_outcome','readback'])test(`workload ${operation} forwards one fixed request without caller identity or service keys`,async()=>{
  const [,{OPERATIONS_MEMORY_MAPPING:m}]=await modules;let count=0;
- const c=await transport(async(url,init)=>{count++;assert.equal(url,'https://ivmvufhcsezyhczzondn.supabase.co/functions/v1/pandora-memory-bridge');assert.equal(init.redirect,'error');
+ const c=await transport(async(url,init)=>{count++;assert.equal(url,'https://xyefkykwuppbweabvvmk.supabase.co/functions/v1/pandora-memory-bridge');assert.equal(init.redirect,'error');
   assert.equal(init.headers['x-pandora-vercel-oidc'],token());assert.equal(init.headers.apikey,undefined);assert.equal(init.headers.authorization,undefined);
   const b=JSON.parse(init.body);assert.deepEqual(Object.keys(b).sort(),['action','namespace','operation','payload','projectId','requestId'].sort());assert.equal(b.operation,operation);return success(b);});
  const pending=c.rpc('memory_operations_bridge_v1',{...args(m),p_operation:operation});const [one,two]=await Promise.all([pending,pending]);assert.deepEqual(one.data,{fixture:true});assert.deepEqual(one,two);assert.equal(count,1);
