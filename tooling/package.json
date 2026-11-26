@@ -23,7 +23,7 @@
     "@posthog/cli": "0.18.0",
     "knip": "6.34.0",
     "supabase": "2.116.0",
-    "vercel": "59.11.7"
+    "vercel": "67.0.0"
   },
   "overrides": {
     "@modelcontextprotocol/sdk": "1.32.1",
