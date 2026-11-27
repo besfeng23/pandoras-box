@@ -519,21 +519,37 @@ function assertPlanIdentity(plan, planId, status) {
 
 function defaultDependencies(overrides = {}) {
     const operatorConfig = loadOperatorPublicConfig();
-    const needsPandoraMcpAuthConfig = !overrides.authenticator || !overrides.membershipResolver;
-    const authConfig = needsPandoraMcpAuthConfig ? buildPandoraMcpAuthConfiguration() : undefined;
-    return {
-        organizationId: authConfig?.organizationId ?? operatorConfig.organizationId,
-        authorizationServer: authConfig?.authorizationServer ?? AUTHORIZATION_SERVER,
-        allowedOrigins: operatorConfig.allowedOrigins,
-        authenticator: overrides.authenticator ?? new SupabaseBearerAuthenticator({
+    let authConfig;
+    let defaultAuthenticator;
+    let defaultMembershipResolver;
+    const authServices = () => {
+        authConfig ??= buildPandoraMcpAuthConfiguration();
+        defaultAuthenticator ??= new SupabaseBearerAuthenticator({
             supabaseUrl: authConfig.supabaseUrl,
             publishableKey: authConfig.supabasePublishableKey,
-        }),
-        membershipResolver: overrides.membershipResolver ?? new SupabaseOrganizationMembershipResolver({
+        });
+        defaultMembershipResolver ??= new SupabaseOrganizationMembershipResolver({
             supabaseUrl: authConfig.supabaseUrl,
             publishableKey: authConfig.supabasePublishableKey,
             tableName: authConfig.membershipTable,
-        }),
+        });
+        return { authConfig, authenticator: defaultAuthenticator, membershipResolver: defaultMembershipResolver };
+    };
+    const needsPandoraMcpAuthConfig = !overrides.authenticator || !overrides.membershipResolver;
+    return {
+        organizationId: overrides.organizationId ?? operatorConfig.organizationId,
+        getOrganizationId: () => {
+            if (overrides.organizationId) return overrides.organizationId;
+            return needsPandoraMcpAuthConfig ? authServices().authConfig.organizationId : operatorConfig.organizationId;
+        },
+        authorizationServer: AUTHORIZATION_SERVER,
+        allowedOrigins: operatorConfig.allowedOrigins,
+        authenticator: overrides.authenticator ?? {
+            authenticate: (...args) => authServices().authenticator.authenticate(...args),
+        },
+        membershipResolver: overrides.membershipResolver ?? {
+            resolve: (...args) => authServices().membershipResolver.resolve(...args),
+        },
         ledger: new ExecutionLedgerClient(),
         workloadToken: resolveVercelWorkloadToken,
         execute: executeTool,
@@ -545,8 +561,11 @@ function defaultDependencies(overrides = {}) {
 
 async function actorFor(request, dependencies) {
     const identity = await dependencies.authenticator.authenticate(authorizationHeader(request));
+    const organizationId = typeof dependencies.getOrganizationId === "function"
+        ? dependencies.getOrganizationId()
+        : dependencies.organizationId;
     const membership = await dependencies.membershipResolver.resolve(
-        dependencies.organizationId,
+        organizationId,
         identity.userId,
         identity.accessToken,
     );
@@ -558,7 +577,7 @@ async function actorFor(request, dependencies) {
             || !dependencies.allowedMembershipRoles.has(membership.role))) {
         throw Object.assign(new Error("Pandora membership role is not authorized for this MCP resource"), { status: 403 });
     }
-    if (membership.organizationId !== dependencies.organizationId || membership.userId !== identity.userId) {
+    if (membership.organizationId !== organizationId || membership.userId !== identity.userId) {
         throw Object.assign(new Error("Pandora membership does not match the authenticated user and organization"), { status: 403 });
     }
     return { identity, membership };
