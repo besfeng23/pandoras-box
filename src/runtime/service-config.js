@@ -4,6 +4,7 @@ exports.MissingConfigurationError = exports.UnknownToolError = void 0;
 exports.sanitizeProviderConnections = sanitizeProviderConnections;
 exports.buildProviderConnectionMetadata = buildProviderConnectionMetadata;
 exports.buildToolConfiguration = buildToolConfiguration;
+exports.buildPandoraMcpAuthConfiguration = buildPandoraMcpAuthConfiguration;
 exports.inspectToolConfiguration = inspectToolConfiguration;
 const tool_catalog_js_1 = require("./tool-catalog.js");
 const github_control_resolver_js_1 = require("./github-control-resolver.js");
@@ -15,6 +16,11 @@ const crypto_1 = require("node:crypto");
  * and deployed application behind this hostname are authoritative.
  */
 const DEFAULT_MEMORY_ORIGIN = 'https://pandorasbox-memory.vercel.app';
+const PANDORA_MCP_SUPABASE_ORIGIN = 'https://xyefkykwuppbweabvvmk.supabase.co';
+const PANDORA_MCP_SUPABASE_URL_ENV = 'MCPMASTER_PANDORA_MCP_SUPABASE_URL';
+const PANDORA_MCP_SUPABASE_PUBLISHABLE_KEY_ENV = 'MCPMASTER_PANDORA_MCP_SUPABASE_PUBLISHABLE_KEY';
+const PANDORA_MCP_ORGANIZATION_ID = '2270b266-59da-4c39-bfd9-9f8d08352af0';
+const PANDORA_MCP_MEMBERSHIP_TABLE = 'pandora_mcp_memberships';
 const FLUTTERFLOW_API_ORIGIN = 'https://api.flutterflow.io/v2';
 /**
  * Legacy deployment retired by the same decision. It is quarantined rather
@@ -45,6 +51,53 @@ function requiredEnvironmentValue(service, name) {
         throw new MissingConfigurationError(service, [name]);
     }
     return value;
+}
+
+function buildPandoraMcpAuthConfiguration(environment = process.env) {
+    const supabaseUrl = environment[PANDORA_MCP_SUPABASE_URL_ENV]?.trim();
+    const publishableKey = environment[PANDORA_MCP_SUPABASE_PUBLISHABLE_KEY_ENV]?.trim();
+    const missing = [];
+    if (!supabaseUrl)
+        missing.push(PANDORA_MCP_SUPABASE_URL_ENV);
+    if (!publishableKey)
+        missing.push(PANDORA_MCP_SUPABASE_PUBLISHABLE_KEY_ENV);
+    if (missing.length) {
+        throw new MissingConfigurationError('pandora-mcp-auth', missing);
+    }
+    let parsedUrl;
+    try {
+        parsedUrl = new URL(supabaseUrl);
+    }
+    catch {
+        throw new MissingConfigurationError('pandora-mcp-auth', [
+            `${PANDORA_MCP_SUPABASE_URL_ENV} must point to the Tokyo Supabase project`,
+        ]);
+    }
+    if (parsedUrl.protocol !== 'https:'
+        || parsedUrl.origin !== PANDORA_MCP_SUPABASE_ORIGIN
+        || parsedUrl.pathname !== '/'
+        || parsedUrl.search
+        || parsedUrl.hash
+        || parsedUrl.username
+        || parsedUrl.password) {
+        throw new MissingConfigurationError('pandora-mcp-auth', [
+            `${PANDORA_MCP_SUPABASE_URL_ENV} must point to the Tokyo Supabase project`,
+        ]);
+    }
+    if (!publishableKey.startsWith('sb_publishable_')
+        || publishableKey.length < 24
+        || publishableKey.length > 256) {
+        throw new MissingConfigurationError('pandora-mcp-auth', [
+            `valid ${PANDORA_MCP_SUPABASE_PUBLISHABLE_KEY_ENV}`,
+        ]);
+    }
+    return {
+        supabaseUrl: PANDORA_MCP_SUPABASE_ORIGIN,
+        supabasePublishableKey: publishableKey,
+        organizationId: PANDORA_MCP_ORGANIZATION_ID,
+        membershipTable: PANDORA_MCP_MEMBERSHIP_TABLE,
+        authorizationServer: `${PANDORA_MCP_SUPABASE_ORIGIN}/auth/v1`,
+    };
 }
 function commaSeparatedEnvironment(name) {
     return (process.env[name] || '')

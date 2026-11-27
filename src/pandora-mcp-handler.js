@@ -13,7 +13,7 @@ const { ExecutionLedgerClient } = require("./runtime/execution-ledger-client.js"
 const {
     createProviderExecutionStateMachine,
 } = require("./runtime/provider-execution-state-machine.js");
-const { buildToolConfiguration } = require("./runtime/service-config.js");
+const { buildToolConfiguration, buildPandoraMcpAuthConfiguration } = require("./runtime/service-config.js");
 const { classifyToolRisk } = require("./runtime/tool-policy.js");
 const { resolveVercelWorkloadToken } = require("./runtime/vercel-workload-identity.js");
 const { executeTool, getAllTools, toolRegistry } = require("./tools/index.js");
@@ -39,15 +39,11 @@ const {
 const PLAN_TTL_MS = 10 * 60 * 1000;
 const MAX_BODY_BYTES = 256 * 1024;
 const DEFAULT_RESOURCE_ORIGIN = "https://mcpmaster.vercel.app";
-const AUTHORIZATION_SERVER = "https://jcyqixttuebxqqfkjonq.supabase.co/auth/v1";
+const AUTHORIZATION_SERVER = "https://xyefkykwuppbweabvvmk.supabase.co/auth/v1";
 const IDENTITY_SCOPES = Object.freeze(["openid", "email", "profile"]);
-const PANDORA_ACTION_SCOPES = Object.freeze([
-    "pandora:read",
-    "pandora:plan",
-    "pandora:approve",
-    "pandora:execute",
-]);
-const MCP_OAUTH_SCOPES = Object.freeze([...IDENTITY_SCOPES, ...PANDORA_ACTION_SCOPES]);
+// Supabase Auth's OAuth server issues OIDC identity scopes. Pandora capabilities
+// are authorized by the active membership role and server-side executor checks.
+const MCP_OAUTH_SCOPES = Object.freeze([...IDENTITY_SCOPES]);
 const LEGACY_IDENTITY_SCOPES = new Set([...IDENTITY_SCOPES, "phone", "offline_access"]);
 const MCP_ALLOWED_METHODS = "GET,POST,DELETE,OPTIONS";
 const MCP_ALLOWED_HEADERS = "Authorization,Content-Type,Mcp-Protocol-Version,Last-Event-ID,X-Request-Id";
@@ -263,7 +259,7 @@ function protectedResourceMetadata(dependencies = {}) {
     return {
         resource: `${origin}${resourcePath(dependencies)}`,
         resource_name: dependencies.resourceName?.trim() || "Pandora",
-        authorization_servers: [AUTHORIZATION_SERVER],
+        authorization_servers: [dependencies.authorizationServer?.trim() || AUTHORIZATION_SERVER],
         scopes_supported: oauthScopes(dependencies),
         bearer_methods_supported: ["header"],
         resource_documentation: dependencies.resourceDocumentation?.trim()
@@ -521,18 +517,22 @@ function assertPlanIdentity(plan, planId, status) {
     return plan;
 }
 
-function defaultDependencies() {
-    const config = loadOperatorPublicConfig();
+function defaultDependencies(overrides = {}) {
+    const operatorConfig = loadOperatorPublicConfig();
+    const needsPandoraMcpAuthConfig = !overrides.authenticator || !overrides.membershipResolver;
+    const authConfig = needsPandoraMcpAuthConfig ? buildPandoraMcpAuthConfiguration() : undefined;
     return {
-        organizationId: config.organizationId,
-        allowedOrigins: config.allowedOrigins,
-        authenticator: new SupabaseBearerAuthenticator({
-            supabaseUrl: config.supabaseUrl,
-            publishableKey: config.supabasePublishableKey,
+        organizationId: authConfig?.organizationId ?? operatorConfig.organizationId,
+        authorizationServer: authConfig?.authorizationServer ?? AUTHORIZATION_SERVER,
+        allowedOrigins: operatorConfig.allowedOrigins,
+        authenticator: overrides.authenticator ?? new SupabaseBearerAuthenticator({
+            supabaseUrl: authConfig.supabaseUrl,
+            publishableKey: authConfig.supabasePublishableKey,
         }),
-        membershipResolver: new SupabaseOrganizationMembershipResolver({
-            supabaseUrl: config.supabaseUrl,
-            publishableKey: config.supabasePublishableKey,
+        membershipResolver: overrides.membershipResolver ?? new SupabaseOrganizationMembershipResolver({
+            supabaseUrl: authConfig.supabaseUrl,
+            publishableKey: authConfig.supabasePublishableKey,
+            tableName: authConfig.membershipTable,
         }),
         ledger: new ExecutionLedgerClient(),
         workloadToken: resolveVercelWorkloadToken,
@@ -856,7 +856,7 @@ async function callTool(name, args, actor, dependencies) {
 }
 
 function createPandoraMcpHandler(overrides = {}) {
-    const initialDependencies = { ...defaultDependencies(), ...overrides };
+    const initialDependencies = { ...defaultDependencies(overrides), ...overrides };
     const providerExecution = createProviderExecutionStateMachine({
         execute: initialDependencies.execute,
         ledger: initialDependencies.ledger,
@@ -879,11 +879,22 @@ function createPandoraMcpHandler(overrides = {}) {
                 return;
             }
             const authorization = authorizationHeader(request);
-            clearPrivilegedCallerHeaders(request);
             if (!authorization) {
+                clearPrivilegedCallerHeaders(request);
                 throw Object.assign(new Error("A valid bearer access token is required"), { status: 401 });
             }
             const current = await actorFor({ headers: { authorization } }, dependencies);
+            // Capture the platform-issued token before caller-header scrubbing.
+            // @vercel/oidc reads it from the per-request context header collection.
+            const platformWorkloadToken = typeof request.__canonicalVercelOidcToken === "string"
+                && request.__canonicalVercelOidcToken.trim()
+                ? request.__canonicalVercelOidcToken.trim()
+                : await dependencies.workloadToken();
+            const requestDependencies = {
+                ...dependencies,
+                workloadToken: async () => platformWorkloadToken,
+            };
+            clearPrivilegedCallerHeaders(request);
             if (request.method !== "POST") {
                 response.setHeader("Allow", MCP_ALLOWED_METHODS);
                 rpcError(response, null, -32600, "Method not allowed", 405);
@@ -923,9 +934,22 @@ function createPandoraMcpHandler(overrides = {}) {
             const params = requiredObject(body.params, "params");
             const name = requiredString(params.name, "params.name");
             const args = params.arguments === undefined ? {} : requiredObject(params.arguments, "params.arguments");
-            rpcResult(response, id, await callTool(name, args, current, dependencies));
+            rpcResult(response, id, await callTool(name, args, current, requestDependencies));
         } catch (error) {
             const status = Number.isInteger(error?.status) ? error.status : 500;
+            const errorName = typeof error?.name === "string" && /^[A-Za-z][A-Za-z0-9_]{0,63}$/.test(error.name)
+                ? error.name
+                : "UnknownError";
+            const errorCode = typeof error?.code === "string"
+                && /^(?:[A-Z][A-Z0-9_]{0,63}|[0-9A-Z]{5})$/.test(error.code)
+                ? error.code
+                : undefined;
+            console.error("[pandora-mcp] request failed", {
+                status,
+                errorName,
+                ...(errorCode ? { errorCode } : {}),
+                ...(Number.isInteger(error?.rpcCode) ? { rpcCode: error.rpcCode } : {}),
+            });
             if (status === 401) response.setHeader("WWW-Authenticate", oauthChallenge(dependencies));
             if (status === 403 && typeof error?.requiredScope === "string") {
                 response.setHeader("WWW-Authenticate", `Bearer error="insufficient_scope", scope="${error.requiredScope}"`);

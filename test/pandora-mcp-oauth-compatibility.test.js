@@ -12,13 +12,7 @@ const USER_ID = "e5f5744e-554b-4f92-aad2-3f58ae6a33ad";
 const ORGANIZATION_ID = "2270b266-59da-4c39-bfd9-9f8d08352af0";
 const RESOURCE_ORIGIN = "https://mcpmaster.vercel.app";
 const IDENTITY_SCOPES = ["openid", "email", "profile"];
-const MCP_SCOPES = [
-  ...IDENTITY_SCOPES,
-  "pandora:read",
-  "pandora:plan",
-  "pandora:approve",
-  "pandora:execute",
-];
+const MCP_SCOPES = [...IDENTITY_SCOPES];
 const CHALLENGE = `Bearer resource_metadata="${RESOURCE_ORIGIN}/.well-known/oauth-protected-resource/mcp", scope="${MCP_SCOPES.join(" ")}"`;
 const ALLOWED_HEADERS = "Authorization,Content-Type,Mcp-Protocol-Version,Last-Event-ID,X-Request-Id";
 const ALLOWED_METHODS = "GET,POST,DELETE,OPTIONS";
@@ -87,7 +81,7 @@ test("only protected-resource discovery is public and matches the live metadata 
   const expected = {
     resource: `${RESOURCE_ORIGIN}/mcp`,
     resource_name: "Pandora",
-    authorization_servers: ["https://jcyqixttuebxqqfkjonq.supabase.co/auth/v1"],
+    authorization_servers: ["https://xyefkykwuppbweabvvmk.supabase.co/auth/v1"],
     scopes_supported: MCP_SCOPES,
     bearer_methods_supported: ["header"],
     resource_documentation: `${RESOURCE_ORIGIN}/control-tower`,
@@ -437,3 +431,102 @@ test("retired ProjectOS tool aliases fail closed instead of routing to Pandora t
   }
 });
 
+
+
+test("Vercel workload identity is captured before privileged caller headers are scrubbed", async () => {
+  const contextSymbol = Symbol.for("@vercel/request-context");
+  const previousContext = globalThis[contextSymbol];
+  const previousEnvironmentToken = process.env.VERCEL_OIDC_TOKEN;
+  const tokenHeader = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
+  const tokenPayload = Buffer.from(JSON.stringify({
+    exp: Math.floor(Date.now() / 1000) + 3600,
+  })).toString("base64url");
+  const platformToken = `${tokenHeader}.${tokenPayload}.platform-signature`;
+  const accessToken = "pandora-mcp-oidc-capture-test-access-token";
+  const headers = {
+    authorization: `Bearer ${accessToken}`,
+    "x-vercel-oidc-token": platformToken,
+  };
+  let observedWorkloadToken;
+  delete process.env.VERCEL_OIDC_TOKEN;
+  globalThis[contextSymbol] = {
+    get() {
+      return { headers };
+    },
+  };
+  try {
+    const handler = createPandoraMcpHandler({
+      organizationId: ORGANIZATION_ID,
+      authenticator: {
+        async authenticate(header) {
+          assert.equal(header, `Bearer ${accessToken}`);
+          return {
+            userId: USER_ID,
+            accessToken,
+            scopes: IDENTITY_SCOPES,
+            scopeClaimsPresent: true,
+          };
+        },
+      },
+      membershipResolver: {
+        async resolve() {
+          return { organizationId: ORGANIZATION_ID, userId: USER_ID, role: "owner" };
+        },
+      },
+      ledger: {
+        async listPlans(token) {
+          observedWorkloadToken = token;
+          return [];
+        },
+      },
+    });
+    const response = await invoke(handler, {
+      method: "POST",
+      headers,
+      body: {
+        jsonrpc: "2.0",
+        id: 91,
+        method: "tools/call",
+        params: { name: "pandora_list_plans", arguments: {} },
+      },
+    });
+    assert.equal(response.statusCode, 200);
+    assert.equal(observedWorkloadToken, platformToken);
+    assert.equal(headers["x-vercel-oidc-token"], undefined);
+  } finally {
+    if (previousContext === undefined) delete globalThis[contextSymbol];
+    else globalThis[contextSymbol] = previousContext;
+    if (previousEnvironmentToken === undefined) delete process.env.VERCEL_OIDC_TOKEN;
+    else process.env.VERCEL_OIDC_TOKEN = previousEnvironmentToken;
+  }
+});
+
+test("MCP catch logging exposes safe failure metadata without logging exception messages", async () => {
+  const secretLikeMessage = "do-not-log-this-sensitive-upstream-detail";
+  const captured = [];
+  const originalError = console.error;
+  console.error = (...args) => captured.push(args);
+  try {
+    const handler = handlerWith({
+      async authenticate() {
+        throw Object.assign(new Error(secretLikeMessage), {
+          status: 503,
+          code: "UPSTREAM_UNAVAILABLE",
+        });
+      },
+    });
+    const response = await invoke(handler, {
+      method: "POST",
+      headers: { authorization: "Bearer pandora-mcp-safe-log-test-access-token" },
+      body: { jsonrpc: "2.0", id: 92, method: "initialize", params: {} },
+    });
+    assert.equal(response.statusCode, 503);
+    assert.equal(captured.length, 1);
+    const logged = JSON.stringify(captured);
+    assert.match(logged, /UPSTREAM_UNAVAILABLE/);
+    assert.match(logged, /status/);
+    assert.doesNotMatch(logged, new RegExp(secretLikeMessage));
+  } finally {
+    console.error = originalError;
+  }
+});

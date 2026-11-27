@@ -1,6 +1,14 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.106.2?bundle';
 
-const authorizationId = new URLSearchParams(window.location.search).get('authorization_id');
+const authorizationParams = new URLSearchParams(window.location.search);
+const authorizationId = authorizationParams.get('authorization_id');
+const pandoraMcpAuth = authorizationParams.get('auth') === 'pandora-mcp';
+const authConfigPath = pandoraMcpAuth
+  ? '/api/operator/pandora-mcp-auth/config'
+  : '/api/operator/auth/config';
+const authSessionPath = pandoraMcpAuth
+  ? '/api/operator/pandora-mcp-auth/session'
+  : '/api/operator/session';
 const status = document.querySelector('#status');
 const loginForm = document.querySelector('#login');
 const githubButton = document.querySelector('#github');
@@ -190,7 +198,7 @@ async function session() {
 async function verifyMembership() {
   const current = await session();
   if (!current?.access_token) throw new Error('Pandoras-Box session is unavailable');
-  const response = await fetch('/api/operator/session', {
+  const response = await fetch(authSessionPath, {
     headers: {
       authorization: `Bearer ${current.access_token}`,
       accept: 'application/json',
@@ -282,7 +290,7 @@ async function boot() {
     return;
   }
   try {
-    const response = await fetch('/api/operator/auth/config', {
+    const response = await fetch(authConfigPath, {
       headers: { accept: 'application/json' },
       cache: 'no-store',
     });

@@ -15,6 +15,10 @@ class SupabaseOrganizationMembershipResolver {
         this.fetchFn = options.fetchFn;
         this.timeoutMs = options.timeoutMs ?? 8000;
         this.machineCredentials = options.machineCredentials;
+        this.tableName = options.tableName ?? 'memberships';
+        if (typeof this.tableName !== 'string' || !/^[a-z_][a-z0-9_]*$/.test(this.tableName)) {
+            throw new Error('Supabase membership table name is invalid');
+        }
     }
     async resolve(organizationId, userId, accessToken) {
         const machine = (0, supabase_bearer_1.resolveProjectOsMachineCredential)(accessToken, userId, this.machineCredentials);
@@ -43,7 +47,7 @@ class SupabaseOrganizationMembershipResolver {
             fetchFn: this.fetchFn,
             timeoutMs: this.timeoutMs,
         });
-        const payload = await client.requestJson(`/rest/v1/memberships?${query.toString()}`);
+        const payload = await client.requestJson(`/rest/v1/${this.tableName}?${query.toString()}`);
         if (!Array.isArray(payload) || payload.length === 0) {
             return null;
         }

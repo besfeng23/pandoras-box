@@ -16,6 +16,7 @@ const APPROVER_ROLES = new Set(['owner', 'admin']);
 const EXECUTOR_ROLES = new Set(['owner', 'admin']);
 const OPERATOR_RATE_WINDOW_MS = 60000;
 const MAX_OPERATOR_RATE_BUCKETS = 10000;
+const PANDORA_MCP_ACTIVE_ROLES = new Set(['owner', 'admin', 'operator', 'member', 'viewer']);
 function defaultRuntimeFactory(config) {
     const modulePath = process.env.MCPMASTER_RUNTIME_MODULE
         ?? node_path_1.default.resolve(process.cwd(), 'dist/http-app.js');
@@ -236,6 +237,118 @@ function createOperatorApiApp(options) {
             sessionStorage: 'memory-only',
             mfaRequiredForApproval: false,
         });
+    });
+    router.get('/pandora-mcp-auth/config', (request, response) => {
+        if (!operatorOriginAllowed(request, options.allowedOrigins)) {
+            noStore(response);
+            response.status(403).json({
+                ok: false,
+                error: {
+                    code: 'OPERATOR_ORIGIN_FORBIDDEN',
+                    message: 'The operator API accepts only the same origin or an explicitly allowed origin.',
+                },
+            });
+            return;
+        }
+        noStore(response);
+        try {
+            const services = options.pandoraMcpAuthServices?.();
+            if (!services?.supabaseUrl || !services?.supabasePublishableKey) {
+                throw new Error('Pandora MCP authentication configuration is unavailable');
+            }
+            response.json({
+                supabaseUrl: services.supabaseUrl,
+                supabasePublishableKey: services.supabasePublishableKey,
+                organizationId: services.organizationId,
+                sessionStorage: 'memory-only',
+            });
+        }
+        catch {
+            response.status(503).json({
+                ok: false,
+                error: {
+                    code: 'PANDORA_MCP_AUTH_CONFIGURATION_UNAVAILABLE',
+                    message: 'Pandora MCP authentication configuration is unavailable.',
+                },
+            });
+        }
+    });
+    router.get('/pandora-mcp-auth/session', async (request, response) => {
+        if (!operatorOriginAllowed(request, options.allowedOrigins)) {
+            noStore(response);
+            response.status(403).json({
+                ok: false,
+                error: {
+                    code: 'OPERATOR_ORIGIN_FORBIDDEN',
+                    message: 'The operator API accepts only the same origin or an explicitly allowed origin.',
+                },
+            });
+            return;
+        }
+        noStore(response);
+        const authorization = request.header('authorization');
+        clearPrivilegedCallerHeaders(request);
+        if (!authorization) {
+            response.status(401).json({
+                ok: false,
+                error: {
+                    code: 'PANDORA_MCP_AUTH_REQUIRED',
+                    message: 'A valid Tokyo Supabase session is required.',
+                },
+            });
+            return;
+        }
+        try {
+            const services = options.pandoraMcpAuthServices?.();
+            if (!services?.authenticator || !services?.membershipResolver) {
+                throw new Error('Pandora MCP authentication configuration is unavailable');
+            }
+            const identity = await services.authenticator.authenticate(authorization);
+            const membership = await services.membershipResolver.resolve(
+                services.organizationId,
+                identity.userId,
+                identity.accessToken,
+            );
+            if (!membership
+                || membership.organizationId !== services.organizationId
+                || membership.userId !== identity.userId
+                || !PANDORA_MCP_ACTIVE_ROLES.has(membership.role)) {
+                response.status(403).json({
+                    ok: false,
+                    error: {
+                        code: 'PANDORA_MCP_MEMBERSHIP_REQUIRED',
+                        message: 'An active Pandora MCP organization membership is required.',
+                    },
+                });
+                return;
+            }
+            response.json({
+                ok: true,
+                user: {
+                    id: identity.userId,
+                    email: identity.email,
+                    role: membership.role,
+                },
+            });
+        }
+        catch (error) {
+            const status = error?.status === 401 || error?.status === 403 ? error.status : 503;
+            response.status(status).json({
+                ok: false,
+                error: {
+                    code: status === 401
+                        ? 'PANDORA_MCP_AUTH_REQUIRED'
+                        : status === 403
+                            ? 'PANDORA_MCP_MEMBERSHIP_REQUIRED'
+                            : 'PANDORA_MCP_AUTH_UNAVAILABLE',
+                    message: status === 401
+                        ? 'A valid Tokyo Supabase session is required.'
+                        : status === 403
+                            ? 'An active Pandora MCP organization membership is required.'
+                            : 'Pandora MCP authentication is temporarily unavailable.',
+                },
+            });
+        }
     });
     router.use(operatorAuthentication(options));
     router.get('/session', (_request, response) => {
