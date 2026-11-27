@@ -24,7 +24,7 @@ export default async function oauthConsent(request: any, response: any) {
   response.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
   response.setHeader(
     'Content-Security-Policy',
-    "default-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' https://esm.sh; connect-src 'self' https://jcyqixttuebxqqfkjonq.supabase.co https://xyefkykwuppbweabvvmk.supabase.co; img-src 'self' data: https://raw.githubusercontent.com; style-src 'self' 'unsafe-inline'",
+    "default-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' https://esm.sh; connect-src 'self' https://jcyqixttuebxqqfkjonq.supabase.co https://ezevdupejriywcwqaskl.supabase.co; img-src 'self' data: https://raw.githubusercontent.com; style-src 'self' 'unsafe-inline'",
   );
 
   if (request.method !== 'GET') {
