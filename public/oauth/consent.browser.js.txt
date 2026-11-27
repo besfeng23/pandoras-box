@@ -2,7 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.106.2?bundl
 
 const authorizationParams = new URLSearchParams(window.location.search);
 const authorizationId = authorizationParams.get('authorization_id');
-const pandoraMcpAuth = authorizationParams.get('auth') === 'pandora-mcp';
+const pandoraMcpAuth = window.location.pathname === '/oauth/pandora-mcp-consent';
 const authConfigPath = pandoraMcpAuth
   ? '/api/operator/pandora-mcp-auth/config'
   : '/api/operator/auth/config';
