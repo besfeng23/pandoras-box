@@ -8,12 +8,12 @@ const {
 
 const ORGANIZATION_ID = "2270b266-59da-4c39-bfd9-9f8d08352af0";
 const USER_ID = "e5f5744e-554b-4f92-aad2-3f58ae6a33ad";
-const ACCESS_TOKEN = "tokyo-membership-test-access-token-long-enough";
+const ACCESS_TOKEN = "pandora-mcp-membership-test-access-token-long-enough";
 
 test("membership resolver can target an isolated Pandora MCP membership table", async () => {
   let requestedUrl;
   const resolver = new SupabaseOrganizationMembershipResolver({
-    supabaseUrl: "https://xyefkykwuppbweabvvmk.supabase.co",
+    supabaseUrl: "https://ezevdupejriywcwqaskl.supabase.co",
     publishableKey: "test-public-key",
     tableName: "pandora_mcp_memberships",
     fetchFn: async (url) => {
@@ -39,7 +39,7 @@ test("membership resolver can target an isolated Pandora MCP membership table", 
 
 test("membership resolver rejects unsafe table names", () => {
   assert.throws(() => new SupabaseOrganizationMembershipResolver({
-    supabaseUrl: "https://xyefkykwuppbweabvvmk.supabase.co",
+    supabaseUrl: "https://ezevdupejriywcwqaskl.supabase.co",
     publishableKey: "test-public-key",
     tableName: "memberships?select=*",
   }), /membership table name is invalid/);
