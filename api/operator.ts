@@ -1,6 +1,7 @@
 import express from 'express';
 import { createHttpApp } from '../src/http-app.js';
 import { loadOperatorPublicConfig } from '../src/operator-public-config.js';
+import { buildPandoraMcpAuthConfiguration } from '../src/runtime/service-config.js';
 import { SupabaseBearerAuthenticator } from '../apps/meta-business-mcp/src/auth/supabase-bearer.js';
 import { SupabaseOrganizationMembershipResolver } from '../apps/meta-business-mcp/src/auth/membership.js';
 import { createOperatorApiApp } from '../src/operator/api.js';
@@ -33,6 +34,21 @@ function runtime() {
     ...publicConfig,
     authenticator,
     membershipResolver,
+    pandoraMcpAuthServices: () => {
+      const authConfig = buildPandoraMcpAuthConfiguration(process.env);
+      return {
+        ...authConfig,
+        authenticator: new SupabaseBearerAuthenticator({
+          supabaseUrl: authConfig.supabaseUrl,
+          publishableKey: authConfig.supabasePublishableKey,
+        }),
+        membershipResolver: new SupabaseOrganizationMembershipResolver({
+          supabaseUrl: authConfig.supabaseUrl,
+          publishableKey: authConfig.supabasePublishableKey,
+          tableName: authConfig.membershipTable,
+        }),
+      };
+    },
     statusProvider,
     workerContextProvider,
     runtimeFactory: (embeddedConfig: unknown) => createHttpApp(embeddedConfig as any),
