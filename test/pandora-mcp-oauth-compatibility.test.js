@@ -81,7 +81,7 @@ test("only protected-resource discovery is public and matches the live metadata 
   const expected = {
     resource: `${RESOURCE_ORIGIN}/mcp`,
     resource_name: "Pandora",
-    authorization_servers: ["https://xyefkykwuppbweabvvmk.supabase.co/auth/v1"],
+    authorization_servers: ["https://ezevdupejriywcwqaskl.supabase.co/auth/v1"],
     scopes_supported: MCP_SCOPES,
     bearer_methods_supported: ["header"],
     resource_documentation: `${RESOURCE_ORIGIN}/control-tower`,
