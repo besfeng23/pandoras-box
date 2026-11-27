@@ -41,17 +41,22 @@ test("Pandora MCP Auth config fails closed when either Pandora MCP environment v
   );
 });
 
-test("Pandora MCP Auth config rejects the restricted Sydney Supabase project without echoing its URL", () => {
-  let error;
-  try {
-    buildPandoraMcpAuthConfiguration({
-      MCPMASTER_PANDORA_MCP_SUPABASE_URL: "https://jcyqixttuebxqqfkjonq.supabase.co",
-      MCPMASTER_PANDORA_MCP_SUPABASE_PUBLISHABLE_KEY: PUBLISHABLE_KEY,
-    });
-  } catch (caught) {
-    error = caught;
+test("Pandora MCP Auth config rejects non-target projects without echoing their URLs", () => {
+  for (const rejectedUrl of [
+    "https://jcyqixttuebxqqfkjonq.supabase.co",
+    "https://xyefkykwuppbweabvvmk.supabase.co",
+  ]) {
+    let error;
+    try {
+      buildPandoraMcpAuthConfiguration({
+        MCPMASTER_PANDORA_MCP_SUPABASE_URL: rejectedUrl,
+        MCPMASTER_PANDORA_MCP_SUPABASE_PUBLISHABLE_KEY: PUBLISHABLE_KEY,
+      });
+    } catch (caught) {
+      error = caught;
+    }
+    assert.ok(error instanceof MissingConfigurationError);
+    assert.doesNotMatch(error.message, /jcyqixttuebxqqfkjonq|xyefkykwuppbweabvvmk/);
+    assert.match(error.message, /MCPMASTER_PANDORA_MCP_SUPABASE_URL/);
   }
-  assert.ok(error instanceof MissingConfigurationError);
-  assert.doesNotMatch(error.message, /jcyqixttuebxqqfkjonq/);
-  assert.match(error.message, /MCPMASTER_PANDORA_MCP_SUPABASE_URL/);
 });
