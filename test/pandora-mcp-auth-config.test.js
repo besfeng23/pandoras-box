@@ -42,13 +42,16 @@ test("Pandora MCP Auth config fails closed when either Tokyo environment variabl
 });
 
 test("Pandora MCP Auth config rejects the restricted Sydney Supabase project without echoing its URL", () => {
-  const error = assert.throws(
-    () => buildPandoraMcpAuthConfiguration({
+  let error;
+  try {
+    buildPandoraMcpAuthConfiguration({
       MCPMASTER_PANDORA_MCP_SUPABASE_URL: "https://jcyqixttuebxqqfkjonq.supabase.co",
       MCPMASTER_PANDORA_MCP_SUPABASE_PUBLISHABLE_KEY: PUBLISHABLE_KEY,
-    }),
-    MissingConfigurationError,
-  );
+    });
+  } catch (caught) {
+    error = caught;
+  }
+  assert.ok(error instanceof MissingConfigurationError);
   assert.doesNotMatch(error.message, /jcyqixttuebxqqfkjonq/);
   assert.match(error.message, /MCPMASTER_PANDORA_MCP_SUPABASE_URL/);
 });
