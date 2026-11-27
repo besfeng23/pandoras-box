@@ -25,9 +25,9 @@ CREATE POLICY pandora_mcp_memberships_select_self
     TO authenticated
     USING ((SELECT auth.uid()) = user_id);
 
--- Provision Mark's owner membership only if his Tokyo Auth user already exists.
+-- Provision Mark's owner membership only if his Auth user already exists.
 -- If not, create the Auth user through the Supabase Auth Admin API first, then
--- rerun this INSERT with the newly issued Tokyo user UUID.
+-- rerun this INSERT with the newly issued Auth user UUID.
 INSERT INTO public.pandora_mcp_memberships (organization_id, user_id, role, status)
 SELECT
     '2270b266-59da-4c39-bfd9-9f8d08352af0'::uuid,
