@@ -6,8 +6,8 @@ const express = require("express");
 
 const { createOperatorApiApp } = require("../../../src/operator/api.js");
 
-const TOKYO_URL = "https://xyefkykwuppbweabvvmk.supabase.co";
-const TOKEN = "pandora-mcp-tokyo-auth-route-test-access-token";
+const MCP_AUTH_URL = "https://ezevdupejriywcwqaskl.supabase.co";
+const TOKEN = "pandora-mcp-auth-route-test-access-token";
 const USER_ID = "e5f5744e-554b-4f92-aad2-3f58ae6a33ad";
 const ORGANIZATION_ID = "2270b266-59da-4c39-bfd9-9f8d08352af0";
 
@@ -43,8 +43,8 @@ function appFor({ membership = { organizationId: ORGANIZATION_ID, userId: USER_I
     requestsPerMinute: 100,
     runtimeFactory: () => express.Router(),
     pandoraMcpAuthServices: servicesFactory || (() => ({
-      supabaseUrl: TOKYO_URL,
-      supabasePublishableKey: "tokyo-public-test-key",
+      supabaseUrl: MCP_AUTH_URL,
+      supabasePublishableKey: "pandora-mcp-public-test-key",
       organizationId: ORGANIZATION_ID,
       authenticator: {
         async authenticate(header) {
@@ -69,19 +69,19 @@ function appFor({ membership = { organizationId: ORGANIZATION_ID, userId: USER_I
   return app;
 }
 
-test("Pandora MCP consent config returns only the isolated Tokyo Auth settings", async () => {
+test("Pandora MCP consent config returns only the isolated dedicated Pandora MCP Auth settings", async () => {
   await withServer(appFor(), async (origin) => {
     const response = await fetch(`${origin}/pandora-mcp-auth/config`, { cache: "no-store" });
     assert.equal(response.status, 200);
     const body = await response.json();
-    assert.equal(body.supabaseUrl, TOKYO_URL);
-    assert.equal(body.supabasePublishableKey, "tokyo-public-test-key");
+    assert.equal(body.supabaseUrl, MCP_AUTH_URL);
+    assert.equal(body.supabasePublishableKey, "pandora-mcp-public-test-key");
     assert.equal(body.organizationId, ORGANIZATION_ID);
     assert.equal(body.sessionStorage, "memory-only");
   });
 });
 
-test("Pandora MCP consent session validates the Tokyo user and active membership without Sydney auth", async () => {
+test("Pandora MCP consent session validates the Pandora MCP user and active membership without Sydney auth", async () => {
   await withServer(appFor(), async (origin) => {
     const response = await fetch(`${origin}/pandora-mcp-auth/session`, {
       headers: { authorization: `Bearer ${TOKEN}` },
