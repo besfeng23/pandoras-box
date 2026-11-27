@@ -16,7 +16,7 @@ const crypto_1 = require("node:crypto");
  * and deployed application behind this hostname are authoritative.
  */
 const DEFAULT_MEMORY_ORIGIN = 'https://pandorasbox-memory.vercel.app';
-const PANDORA_MCP_SUPABASE_ORIGIN = 'https://xyefkykwuppbweabvvmk.supabase.co';
+const PANDORA_MCP_SUPABASE_ORIGIN = 'https://ezevdupejriywcwqaskl.supabase.co';
 const PANDORA_MCP_SUPABASE_URL_ENV = 'MCPMASTER_PANDORA_MCP_SUPABASE_URL';
 const PANDORA_MCP_SUPABASE_PUBLISHABLE_KEY_ENV = 'MCPMASTER_PANDORA_MCP_SUPABASE_PUBLISHABLE_KEY';
 const PANDORA_MCP_ORGANIZATION_ID = '2270b266-59da-4c39-bfd9-9f8d08352af0';
@@ -70,7 +70,7 @@ function buildPandoraMcpAuthConfiguration(environment = process.env) {
     }
     catch {
         throw new MissingConfigurationError('pandora-mcp-auth', [
-            `${PANDORA_MCP_SUPABASE_URL_ENV} must point to the Tokyo Supabase project`,
+            `${PANDORA_MCP_SUPABASE_URL_ENV} must point to the approved Pandora MCP Supabase project`,
         ]);
     }
     if (parsedUrl.protocol !== 'https:'
@@ -81,7 +81,7 @@ function buildPandoraMcpAuthConfiguration(environment = process.env) {
         || parsedUrl.username
         || parsedUrl.password) {
         throw new MissingConfigurationError('pandora-mcp-auth', [
-            `${PANDORA_MCP_SUPABASE_URL_ENV} must point to the Tokyo Supabase project`,
+            `${PANDORA_MCP_SUPABASE_URL_ENV} must point to the approved Pandora MCP Supabase project`,
         ]);
     }
     if (!publishableKey.startsWith('sb_publishable_')
