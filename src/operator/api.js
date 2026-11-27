@@ -293,7 +293,7 @@ function createOperatorApiApp(options) {
                 ok: false,
                 error: {
                     code: 'PANDORA_MCP_AUTH_REQUIRED',
-                    message: 'A valid Tokyo Supabase session is required.',
+                    message: 'A valid Pandora MCP Supabase session is required.',
                 },
             });
             return;
@@ -342,7 +342,7 @@ function createOperatorApiApp(options) {
                             ? 'PANDORA_MCP_MEMBERSHIP_REQUIRED'
                             : 'PANDORA_MCP_AUTH_UNAVAILABLE',
                     message: status === 401
-                        ? 'A valid Tokyo Supabase session is required.'
+                        ? 'A valid Pandora MCP Supabase session is required.'
                         : status === 403
                             ? 'An active Pandora MCP organization membership is required.'
                             : 'Pandora MCP authentication is temporarily unavailable.',
