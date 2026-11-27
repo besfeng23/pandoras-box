@@ -39,7 +39,7 @@ const {
 const PLAN_TTL_MS = 10 * 60 * 1000;
 const MAX_BODY_BYTES = 256 * 1024;
 const DEFAULT_RESOURCE_ORIGIN = "https://mcpmaster.vercel.app";
-const AUTHORIZATION_SERVER = "https://xyefkykwuppbweabvvmk.supabase.co/auth/v1";
+const AUTHORIZATION_SERVER = "https://ezevdupejriywcwqaskl.supabase.co/auth/v1";
 const IDENTITY_SCOPES = Object.freeze(["openid", "email", "profile"]);
 // Supabase Auth's OAuth server issues OIDC identity scopes. Pandora capabilities
 // are authorized by the active membership role and server-side executor checks.
