@@ -255,7 +255,7 @@ async function executeTool(toolName, args, configuration) {
         catch (error) {
             if (definition.manifest.mutation !== true) {
                 const providerFailure = error?.failure && typeof error.failure === 'object' ? error.failure : {};
-                throw new provider_execution_state_machine_1.ProviderExecutionOutcomeError({
+                throw new provider_execution_state_machine_js_1.ProviderExecutionOutcomeError({
                     providerOutcome: 'failed_before_side_effects',
                     downstreamProcessingOutcome: 'not_started',
                     safeErrorCode: error?.failure?.safeErrorCode ?? error?.code ?? 'memory_read_failed',
