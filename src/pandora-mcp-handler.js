@@ -674,6 +674,16 @@ function executionResultSummary(tool, result) {
     };
 }
 
+function safeLogErrorCode(value) {
+    if (typeof value !== "string") return undefined;
+    if (/^(?:sb_(?:publishable|secret)_|gh[pousr]_|github_pat_|vercel_|vck_|vcp_|sk[_-]|xox[a-z]-)/i.test(value)) return undefined;
+    if (/^[a-f0-9]{32,}$/i.test(value)) return undefined;
+    if (/^(?:[A-Z][A-Z0-9_]{0,63}|[0-9A-Z]{5})$/.test(value)) return value;
+    return /^[a-z][a-z0-9]*(?:_[a-z0-9]+){0,4}$/.test(value) && value.length <= 64
+        ? value
+        : undefined;
+}
+
 function safeMcpErrorMessage(error, status) {
     const failure = error?.failure;
     if (failure && typeof failure === "object" && !Array.isArray(failure)) {
@@ -696,17 +706,15 @@ function safeMcpErrorMessage(error, status) {
 }
 
 async function callTool(name, args, actor, dependencies) {
-    if (name.startsWith("projectos_")) {
-        throw Object.assign(
-            new Error("ProjectOS tool aliases are retired; use canonical Pandora tool names"),
-            { status: 410 },
-        );
-    }
     if (PANDORA_CONTROL_TOOL_NAMES.has(name) && !controlToolAllowed(name, dependencies)) {
         throw Object.assign(new Error(`Unknown Pandora MCP tool: ${name}`), { status: 400 });
     }
-    assertToolScope(name, actor, dependencies);
     const plannedTool = legacyPlannedTool(name, dependencies);
+    const providerTool = Boolean(toolRegistry[name] && providerToolAllowed(name, dependencies));
+    if (!PANDORA_CONTROL_TOOL_NAMES.has(name) && !plannedTool && !providerTool) {
+        throw Object.assign(new Error(`Unknown Pandora MCP tool: ${name}`), { status: 400 });
+    }
+    assertToolScope(name, actor, dependencies);
     if (plannedTool) {
         return toolResult({ plan: await createDurablePlan(plannedTool, args, dependencies) });
     }
@@ -959,10 +967,7 @@ function createPandoraMcpHandler(overrides = {}) {
             const errorName = typeof error?.name === "string" && /^[A-Za-z][A-Za-z0-9_]{0,63}$/.test(error.name)
                 ? error.name
                 : "UnknownError";
-            const errorCode = typeof error?.code === "string"
-                && /^(?:[A-Z][A-Z0-9_]{0,63}|[0-9A-Z]{5})$/.test(error.code)
-                ? error.code
-                : undefined;
+            const errorCode = safeLogErrorCode(error?.failure?.safeErrorCode ?? error?.code);
             console.error("[pandora-mcp] request failed", {
                 status,
                 errorName,

@@ -3,7 +3,9 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 
-const { executeMemoryTool } = require("../dist/tools/memory.js");
+const { executeMemoryTool, memoryTools } = require("../dist/tools/memory.js");
+const { executeTool } = require("../dist/runtime/tool-catalog.js");
+const { createProviderExecutionStateMachine } = require("../dist/runtime/provider-execution-state-machine.js");
 const {
   createCanonicalMemoryHealthProbe,
 } = require("../dist/pandora-container-server.js");
@@ -65,24 +67,46 @@ function jsonStatusResponse(status, payload = { ok: false }) {
   };
 }
 
-test("memory.search requires an explicit project key before network access", async () => {
-  let calls = 0;
-  await assert.rejects(
-    () => executeMemoryTool(
-      "memory.search",
-      { namespace: "real_life", query: "current state" },
-      CONFIG,
-      async () => {
-        calls += 1;
-        return jsonResponse(memoryPayload());
-      },
-    ),
-    (error) => {
-      assert.equal(error?.name, "ZodError");
-      return true;
+test("memory.search defaults omitted namespace and project key to the canonical scope", async () => {
+  let requestBody = null;
+  await executeMemoryTool(
+    "memory.search",
+    { query: "current state" },
+    CONFIG,
+    async (_url, init) => {
+      requestBody = JSON.parse(init.body);
+      return jsonResponse(memoryPayload());
     },
   );
-  assert.equal(calls, 0);
+  assert.equal(requestBody.namespace, "real_life");
+  assert.equal(requestBody.project_key, PROJECT_KEY);
+});
+
+test("read-only Memory schemas publish canonical namespace and project defaults", () => {
+  for (const name of ["memory.search", "memory.canonicalContext"]) {
+    const schema = memoryTools[name].parameters;
+    assert.equal(schema.properties.namespace.default, "real_life");
+    assert.equal(schema.properties.projectKey.default, PROJECT_KEY);
+    assert.match(schema.properties.namespace.description, /defaults to real_life/i);
+    assert.match(schema.properties.projectKey.description, /defaults to mcpmaster-pandoras-box/i);
+    assert.deepEqual(schema.required, ["query"]);
+  }
+});
+
+test("tool catalog applies the default namespace before Memory authorization", async () => {
+  let requestBody = null;
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (_url, init) => {
+    requestBody = JSON.parse(init.body);
+    return jsonResponse(memoryPayload());
+  };
+  try {
+    await executeTool("memory.search", { query: "current state" }, { memory: CONFIG });
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+  assert.equal(requestBody.namespace, "real_life");
+  assert.equal(requestBody.project_key, PROJECT_KEY);
 });
 
 test("memory.search forwards the exact project key to the bridge", async () => {
@@ -145,6 +169,56 @@ test("memory.canonicalContext preserves the exact project scope", async () => {
     },
   );
   assert.equal(requestBody.project_key, PROJECT_KEY);
+});
+
+test("memory.canonicalContext defaults omitted namespace and project key to the canonical scope", async () => {
+  let requestBody = null;
+  await executeMemoryTool(
+    "memory.canonicalContext",
+    { query: "current state" },
+    CONFIG,
+    async (_url, init) => {
+      requestBody = JSON.parse(init.body);
+      return jsonResponse(memoryPayload());
+    },
+  );
+  assert.equal(requestBody.namespace, "real_life");
+  assert.equal(requestBody.project_key, PROJECT_KEY);
+});
+
+test("read-only Memory provider failures are non-ambiguous and retain only safe backend codes", async () => {
+  const cases = [
+    ["memory.health", {}, "scope_not_allowed"],
+    ["memory.search", { query: "current state" }, "project_not_allowed"],
+    ["memory.canonicalContext", { query: "current state" }, "project_not_allowed"],
+  ];
+  for (const [tool, args, code] of cases) {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = async () => jsonStatusResponse(403, {
+      ok: false,
+      error: { code, message: "never-log-this-provider-detail" },
+    });
+    try {
+      const providerExecution = createProviderExecutionStateMachine({
+        execute: (name, receivedArgs) => executeTool(name, receivedArgs, { memory: CONFIG }),
+        ledger: {},
+      });
+      await assert.rejects(
+        () => providerExecution.execute(tool, args, {}),
+        (error) => {
+          assert.equal(error.name, "ProviderExecutionOutcomeError");
+          assert.equal(error.providerOutcome, "failed_before_side_effects");
+          assert.equal(error.reconciliationRequired, false);
+          assert.equal(error.failure.terminalClassification, "failed_without_side_effect");
+          assert.equal(error.code, code);
+          assert.doesNotMatch(error.message, /never-log-this-provider-detail/);
+          return true;
+        },
+      );
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  }
 });
 
 test("durable plan hydration fails closed before Memory when project scope is absent", async () => {

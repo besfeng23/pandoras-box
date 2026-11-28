@@ -23,8 +23,8 @@ const RuntimeConfigurationSchema = zod_1.z.object({
     maxResponseBytes: zod_1.z.number().int().min(1024).max(2000000).default(DEFAULT_MAX_RESPONSE_BYTES),
 });
 const SearchArgsSchema = zod_1.z.object({
-    namespace: NamespaceSchema,
-    projectKey: ProjectKeySchema,
+    namespace: NamespaceSchema.default('real_life'),
+    projectKey: ProjectKeySchema.default('mcpmaster-pandoras-box'),
     query: zod_1.z.string().trim().min(1).max(4000),
     currentTask: zod_1.z.string().trim().min(1).max(2000).optional(),
     maxItems: zod_1.z.number().int().min(1).max(50).default(12),
@@ -34,8 +34,8 @@ const SearchArgsSchema = zod_1.z.object({
     includeOpenLoops: zod_1.z.boolean().default(true),
 });
 const CanonicalContextArgsSchema = zod_1.z.object({
-    namespace: NamespaceSchema,
-    projectKey: ProjectKeySchema,
+    namespace: NamespaceSchema.default('real_life'),
+    projectKey: ProjectKeySchema.default('mcpmaster-pandoras-box'),
     query: zod_1.z.string().trim().min(1).max(4000),
     currentTask: zod_1.z.string().trim().min(1).max(2000).optional(),
     maxItems: zod_1.z.number().int().min(1).max(50).default(25),
@@ -64,6 +64,43 @@ function normalizeHttpsOrigin(value) {
 }
 function retryableReadStatus(status) {
     return status === 408 || status === 429 || status === 500 || status === 502 || status === 503 || status === 504;
+}
+function isSafeMemoryErrorCode(value) {
+    if (typeof value !== 'string' || value.length > 64)
+        return false;
+    if (!/^[a-z][a-z0-9]*(?:_[a-z0-9]+){0,4}$/.test(value))
+        return false;
+    if (/^(?:sb_(?:publishable|secret)_|gh[pousr]_|github_pat_|vercel_|vck_|vcp_|sk[_-]|xox[a-z]-)/i.test(value))
+        return false;
+    return !/^[a-f0-9]{32,}$/i.test(value);
+}
+function extractSafeMemoryErrorCode(responseText) {
+    let payload;
+    try {
+        payload = JSON.parse(responseText);
+    }
+    catch {
+        return undefined;
+    }
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload))
+        return undefined;
+    const nestedError = payload.error && typeof payload.error === 'object' && !Array.isArray(payload.error)
+        ? payload.error
+        : undefined;
+    const candidates = [
+        payload.safeErrorCode,
+        payload.safe_error_code,
+        payload.errorCode,
+        payload.error_code,
+        payload.code,
+        typeof payload.error === 'string' ? payload.error : undefined,
+        nestedError?.safeErrorCode,
+        nestedError?.safe_error_code,
+        nestedError?.errorCode,
+        nestedError?.error_code,
+        nestedError?.code,
+    ];
+    return candidates.find(isSafeMemoryErrorCode);
 }
 function retryAfterMs(response) {
     const raw = response.headers?.get?.('retry-after')?.trim();
@@ -130,10 +167,12 @@ async function readBoundedResponseBody(response, maxResponseBytes) {
     }
 }
 class PandoraMemoryError extends Error {
-    constructor(message, status) {
+    constructor(message, status, code) {
         super(message);
         this.name = 'PandoraMemoryError';
         this.status = status;
+        if (isSafeMemoryErrorCode(code))
+            this.code = code;
     }
 }
 exports.PandoraMemoryError = PandoraMemoryError;
@@ -155,7 +194,7 @@ class PandoraMemoryMCPServer {
     }
     async search(input) {
         if (!this.config.allowedNamespaces.includes(input.namespace)) {
-            throw new PandoraMemoryError(`Pandora Memory namespace is not allowed: ${input.namespace}`, 403);
+            throw new PandoraMemoryError(`Pandora Memory namespace is not allowed: ${input.namespace}`, 403, 'namespace_not_allowed');
         }
         return (0, memory_response_1.sanitizeMemorySearchResponse)(await this.request('/api/pandora/memory/search', 'POST', {
             namespace: input.namespace,
@@ -217,7 +256,7 @@ class PandoraMemoryMCPServer {
                 });
                 const text = await readBoundedResponseBody(response, this.config.maxResponseBytes);
                 if (!response.ok) {
-                    const failure = new PandoraMemoryError(`Pandora Memory request failed with ${response.status}`, response.status);
+                    const failure = new PandoraMemoryError(`Pandora Memory request failed with ${response.status}`, response.status, extractSafeMemoryErrorCode(text));
                     if (!retryableReadStatus(response.status) || attempt >= SAFE_READ_MAX_ATTEMPTS)
                         throw failure;
                     lastFailure = failure;
@@ -268,19 +307,21 @@ exports.memoryTools = {
         },
     },
     'memory.search': {
-        description: 'Retrieve namespace-isolated context from Pandora Memory through the allowlisted Pandora workload identity',
+        description: 'Retrieve namespace-isolated context from Pandora Memory through the allowlisted Pandora workload identity. Defaults namespace to real_life and projectKey to mcpmaster-pandoras-box when omitted',
         parameters: {
             type: 'object',
             properties: {
                 namespace: {
                     type: 'string',
                     enum: ['real_life', 'au'],
-                    description: 'Exact Pandora Memory namespace',
+                    default: 'real_life',
+                    description: 'Exact Pandora Memory namespace; defaults to real_life when omitted',
                 },
                 projectKey: {
                     type: 'string',
                     pattern: '^[a-z0-9][a-z0-9._-]{1,95}$',
-                    description: 'Exact Pandora Memory project key',
+                    default: 'mcpmaster-pandoras-box',
+                    description: 'Exact Pandora Memory project key; defaults to mcpmaster-pandoras-box when omitted',
                 },
                 query: {
                     type: 'string',
@@ -305,7 +346,7 @@ exports.memoryTools = {
                 includeRecent: { type: 'boolean', default: true },
                 includeOpenLoops: { type: 'boolean', default: true },
             },
-            required: ['namespace', 'projectKey', 'query'],
+            required: ['query'],
         },
     },
     'memory.submitEvidenceCandidate': {
@@ -352,19 +393,21 @@ exports.memoryTools = {
         },
     },
     'memory.canonicalContext': {
-        description: 'Recover governed canonical project context from Pandora Memory. Defaults to a 24-hour freshness gate, returns approved records only, surfaces unresolved conflicts, and fails closed to GitHub and Supabase when approved memory is unavailable or stale',
+        description: 'Recover governed canonical project context from Pandora Memory. Defaults namespace to real_life and projectKey to mcpmaster-pandoras-box when omitted. Defaults to a 24-hour freshness gate, returns approved records only, surfaces unresolved conflicts, and fails closed to GitHub and Supabase when approved memory is unavailable or stale',
         parameters: {
             type: 'object',
             properties: {
                 namespace: {
                     type: 'string',
                     enum: ['real_life', 'au'],
-                    description: 'Exact Pandora Memory namespace',
+                    default: 'real_life',
+                    description: 'Exact Pandora Memory namespace; defaults to real_life when omitted',
                 },
                 projectKey: {
                     type: 'string',
                     pattern: '^[a-z0-9][a-z0-9._-]{1,95}$',
-                    description: 'Exact Pandora Memory project key',
+                    default: 'mcpmaster-pandoras-box',
+                    description: 'Exact Pandora Memory project key; defaults to mcpmaster-pandoras-box when omitted',
                 },
                 query: {
                     type: 'string',
@@ -391,7 +434,7 @@ exports.memoryTools = {
                     description: 'Disclose unreviewed drafts for reviewer inspection. Drafts are never canonical',
                 },
             },
-            required: ['namespace', 'projectKey', 'query'],
+            required: ['query'],
         },
     },
 };
