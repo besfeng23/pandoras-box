@@ -204,7 +204,7 @@ function createPandoraContainerApp(environment = process.env) {
         response.json({
             status: 'healthy',
             service: 'pandora-runtime-container',
-            mode: 'projectos',
+            mode: 'pandora',
             timestamp: new Date().toISOString(),
         });
     });
@@ -322,13 +322,13 @@ function startPandoraContainerServer(environment = process.env) {
     const host = environment.HOST?.trim() || '0.0.0.0';
     const app = createPandoraContainerApp(environment);
     const server = app.listen(port, host, () => {
-        console.log(`ProjectOS container listening on ${host}:${port}`);
+        console.log(`Pandora container listening on ${host}:${port}`);
     });
     const shutdown = (signal) => {
-        console.log(`Received ${signal}; shutting down ProjectOS container.`);
+        console.log(`Received ${signal}; shutting down Pandora container.`);
         server.close((error) => {
             if (error) {
-                console.error('ProjectOS container shutdown failed');
+                console.error('Pandora container shutdown failed');
                 process.exitCode = 1;
             }
             process.exit();

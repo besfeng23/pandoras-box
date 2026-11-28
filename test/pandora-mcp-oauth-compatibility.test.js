@@ -395,8 +395,8 @@ test("capability fabric tools require pandora:read", async () => {
   assert.equal(response.headers["www-authenticate"], 'Bearer error="insufficient_scope", scope="pandora:read"');
 });
 
-test("retired ProjectOS tool aliases fail closed instead of routing to Pandora tools", async () => {
-  const accessToken = "projectos-retirement-test-access-token";
+test("unregistered legacy tool names are treated as unknown tools, not aliases", async () => {
+  const accessToken = "legacy-tool-rejection-test-access-token";
   const handler = handlerWith({
     async authenticate() {
       return {
@@ -423,10 +423,10 @@ test("retired ProjectOS tool aliases fail closed instead of routing to Pandora t
         params: { name, arguments: {} },
       },
     });
-    assert.equal(response.statusCode, 410, name);
+    assert.equal(response.statusCode, 400, name);
     assert.deepEqual(response.body.error, {
       code: -32000,
-      message: "ProjectOS tool aliases are retired; use canonical Pandora tool names",
+      message: `Unknown Pandora MCP tool: ${name}`,
     }, name);
   }
 });
@@ -511,7 +511,7 @@ test("MCP catch logging exposes safe failure metadata without logging exception 
       async authenticate() {
         throw Object.assign(new Error(secretLikeMessage), {
           status: 503,
-          code: "UPSTREAM_UNAVAILABLE",
+          code: "project_not_allowed",
         });
       },
     });
@@ -523,7 +523,7 @@ test("MCP catch logging exposes safe failure metadata without logging exception 
     assert.equal(response.statusCode, 503);
     assert.equal(captured.length, 1);
     const logged = JSON.stringify(captured);
-    assert.match(logged, /UPSTREAM_UNAVAILABLE/);
+    assert.match(logged, /project_not_allowed/);
     assert.match(logged, /status/);
     assert.doesNotMatch(logged, new RegExp(secretLikeMessage));
   } finally {

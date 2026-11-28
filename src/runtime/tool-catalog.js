@@ -144,7 +144,11 @@ function assertMemoryAccess(definition, args, configuration) {
     // All Memory tools except health are namespace-scoped. Keep this generic so
     // adding a write-capable tool cannot silently bypass namespace enforcement.
     if (definition.manifest.name !== 'memory.health') {
-        const namespace = typeof args.namespace === 'string' ? args.namespace : undefined;
+        const namespace = typeof args.namespace === 'string'
+            ? args.namespace
+            : ['memory.search', 'memory.canonicalContext'].includes(definition.manifest.name)
+                ? 'real_life'
+                : undefined;
         if (!namespace || !configuration.allowedNamespaces.includes(namespace)) {
             throw localPolicyDenial(`Pandora Memory namespace is not allowed: ${namespace || 'missing'}`);
         }
@@ -244,7 +248,32 @@ async function executeTool(toolName, args, configuration) {
         const typedConfiguration = memoryConfiguration;
         assertMemoryAccess(definition, args, typedConfiguration);
         (0, tool_manifest_js_1.assertHighImpactPolicy)(toolName, args);
-        return (0, result_redaction_js_1.redactSensitiveResult)(await (0, memory_js_1.executeMemoryTool)(toolName, args, typedConfiguration));
+        try {
+            const result = await (0, memory_js_1.executeMemoryTool)(toolName, args, typedConfiguration);
+            return (0, result_redaction_js_1.redactSensitiveResult)(result);
+        }
+        catch (error) {
+            if (definition.manifest.mutation !== true) {
+                const providerFailure = error?.failure && typeof error.failure === 'object' ? error.failure : {};
+                throw new provider_execution_state_machine_js_1.ProviderExecutionOutcomeError({
+                    providerOutcome: 'failed_before_side_effects',
+                    downstreamProcessingOutcome: 'not_started',
+                    safeErrorCode: error?.failure?.safeErrorCode ?? error?.code ?? 'memory_read_failed',
+                    validationCategory: error?.failure?.validationCategory ?? 'provider_execution',
+                    retryable: false,
+                    reconciliationRequired: false,
+                    status: Number.isInteger(error?.status) ? error.status : 503,
+                    identity: {
+                        providerIdempotencySupported: false,
+                        payloadHash: null,
+                        idempotencyIdentityHash: null,
+                    },
+                    providerFailure,
+                    summary: 'Read-only Memory operation failed before any external side effect; reconciliation is not required',
+                });
+            }
+            throw error;
+        }
     }
     if (definition.handler === 'flutterflow') {
         const flutterFlowConfiguration = resolvedConfiguration.flutterflow;

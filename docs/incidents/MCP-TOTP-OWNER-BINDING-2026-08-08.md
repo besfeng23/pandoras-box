@@ -2,7 +2,7 @@
 
 Date: 2026-08-08 (Asia/Manila)
 
-> Superseded for ordinary ProjectOS approvals on 2026-08-12. This document records the historical incident and its then-current response. The current owner decision is documented in `docs/PROJECTOS_APPROVAL_SECURITY_MODEL.md`: authenticated owners and admins may approve without AAL2/TOTP. Supabase MFA may remain available, and separately classified destructive or connection operations may retain independent controls.
+> Superseded on 2026-08-12. This document records the historical MCP approval incident and its then-current response. The later owner-approved policy allowed authenticated owners and admins to approve ordinary plans without AAL2/TOTP; Supabase MFA could remain available, and separately classified destructive or connection operations could retain independent controls. This historical policy record is retained here rather than in an active MCP policy document.
 
 ## Verified root cause
 
